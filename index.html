@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Finlo Engine — Omni Grid Dashboard</title>
+<title>Finlo Engine — Target Managed Dashboard</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
@@ -209,6 +209,14 @@ body {
 /* DATA VISUAL METRICS */
 .metric-amount { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace; margin: 4px 0; white-space: nowrap; }
 .metric-label { font-size: 11px; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* IN-LINE POOL HOVER EDIT STYLING */
+.editable-pool-input {
+  font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace;
+  color: var(--text-dark); border: none; background: transparent; outline: none; width: 100%;
+  border-bottom: 2px dashed rgba(29, 158, 117, 0.2); padding-bottom: 2px; transition: border-color 0.2s;
+}
+.editable-pool-input:focus { border-bottom-color: var(--teal); background: rgba(29, 158, 117, 0.03); }
 
 /* DATA TABLES MATRIX GRID */
 .data-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -426,7 +434,7 @@ const PRESET_WORKSPACE_BLOCKS = [
   { id: "block-bar-distribution", type: "BarChartBlock", title: "Categorized Outflows Weekly Breakdown", x: 620, y: 520, w: 320, h: 360 }
 ];
 
-let appWorkspaceState = { categories: {}, transactions: [], blocks: [] };
+let appWorkspaceState = { categories: {}, transactions: [], blocks: [], customOverriddenBudget: null };
 let activeChartInstances = {};
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -434,12 +442,13 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sidebar-app-title').innerText = cachedWorkspaceTitle;
   handleWorkspaceTitleUpdate(cachedWorkspaceTitle);
 
-  if(localStorage.getItem('finlo_interactive_state_bundle_v5')) {
-    appWorkspaceState = JSON.parse(localStorage.getItem('finlo_interactive_state_bundle_v5'));
+  if(localStorage.getItem('finlo_interactive_state_bundle_v6')) {
+    appWorkspaceState = JSON.parse(localStorage.getItem('finlo_interactive_state_bundle_v6'));
   } else {
     appWorkspaceState.categories = { ...DEFAULT_SYSTEM_CATEGORIES };
     appWorkspaceState.transactions = [ ...DEFAULT_TRANSACTION_ITEMS ];
     appWorkspaceState.blocks = [ ...PRESET_WORKSPACE_BLOCKS ];
+    appWorkspaceState.customOverriddenBudget = null;
     commitStateChangesToLocalStorage();
   }
 
@@ -461,7 +470,7 @@ function handleWorkspaceTitleUpdate(fullTitleText) {
 }
 
 function commitStateChangesToLocalStorage() {
-  localStorage.setItem('finlo_interactive_state_bundle_v5', JSON.stringify(appWorkspaceState));
+  localStorage.setItem('finlo_interactive_state_bundle_v6', JSON.stringify(appWorkspaceState));
 }
 
 function saveCustomWorkspaceName() {
@@ -493,6 +502,24 @@ function syncFormDropdownMenus() {
   });
 }
 
+function handleLiveBudgetInputUpdate(newVal) {
+  const numericVal = parseFloat(newVal.replace(/[^0-9.]/g, ''));
+  if (!isNaN(numericVal)) {
+    appWorkspaceState.customOverriddenBudget = numericVal;
+    commitStateChangesToLocalStorage();
+    
+    // Live recalculate remaining block cleanly without needing complete re-render cycles
+    let totalSpentAggregate = 0;
+    appWorkspaceState.transactions.forEach(t => { if(t.type === 'Debit Outflow') totalSpentAggregate += t.amount; });
+    const remainingCashAmountValue = numericVal - totalSpentAggregate;
+    
+    const remainingValNode = document.getElementById('value-display-block-remaining-pool');
+    if (remainingValNode) {
+      remainingValNode.innerText = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+    }
+  }
+}
+
 function renderModularBentoWorkspaceBlocks() {
   const workspaceContainerCanvas = document.getElementById('modular-bento-canvas');
   if(!workspaceContainerCanvas) return;
@@ -515,32 +542,42 @@ function renderModularBentoWorkspaceBlocks() {
     let innerContentHtmlNode = '';
     
     if(block.type === 'MetricCard') {
-      let numericDisplayResult = 'RM 0.00';
-      let captionSubtextDescription = '';
       let totalBudgetAggregate = 0;
       Object.keys(appWorkspaceState.categories).forEach(k => totalBudgetAggregate += appWorkspaceState.categories[k].budget);
+      if (appWorkspaceState.customOverriddenBudget !== null) {
+        totalBudgetAggregate = appWorkspaceState.customOverriddenBudget;
+      }
+      
       let totalSpentAggregate = 0;
       appWorkspaceState.transactions.forEach(t => { if(t.type === 'Debit Outflow') totalSpentAggregate += t.amount; });
 
       if(block.metricType === 'budget') {
-        numericDisplayResult = `RM ${totalBudgetAggregate.toLocaleString('en-US', {minimumFractionDigits:2})}`;
-        captionSubtextDescription = 'Structural target ceiling cap.';
+        innerContentHtmlNode = `
+          <div class="metric-label">${block.title}</div>
+          <div style="margin: 4px 0; display:flex; align-items:center;">
+            <span style="font-size:28px; font-weight:800; font-family:'JetBrains Mono'; color:var(--teal); margin-right:4px;">RM</span>
+            <input type="text" class="editable-pool-input" value="${totalBudgetAggregate.toFixed(2)}" oninput="handleLiveBudgetInputUpdate(this.value)" />
+          </div>
+          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Directly editable tracking limit.</p>
+        `;
       } else if(block.metricType === 'spent') {
-        numericDisplayResult = `RM ${totalSpentAggregate.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        let numericDisplayResult = `RM ${totalSpentAggregate.toLocaleString('en-US', {minimumFractionDigits:2})}`;
         cardWrapperElement.style.borderLeft = "4px solid var(--purple)";
-        captionSubtextDescription = 'Calculated ledger parameters.';
+        innerContentHtmlNode = `
+          <div class="metric-label">${block.title}</div>
+          <div class="metric-amount">${numericDisplayResult}</div>
+          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Calculated ledger parameters.</p>
+        `;
       } else {
         let remainingCashAmountValue = totalBudgetAggregate - totalSpentAggregate;
-        numericDisplayResult = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        let numericDisplayResult = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
         cardWrapperElement.style.borderLeft = remainingCashAmountValue < 0 ? "4px solid var(--red)" : "4px solid var(--teal)";
-        captionSubtextDescription = remainingCashAmountValue < 0 ? 'Over budget tracking levels!' : 'Safe spending margin available.';
+        innerContentHtmlNode = `
+          <div class="metric-label">${block.title}</div>
+          <div class="metric-amount" id="value-display-block-remaining-pool">${numericDisplayResult}</div>
+          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Safe spending margin available.</p>
+        `;
       }
-
-      innerContentHtmlNode = `
-        <div class="metric-label">${block.title}</div>
-        <div class="metric-amount">${numericDisplayResult}</div>
-        <p style="font-size:12px; color:var(--text-grey); font-weight:500; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${captionSubtextDescription}</p>
-      `;
     } 
     else if(block.type === 'TransactionTable') {
       let innerRowsDataString = '';
@@ -563,8 +600,9 @@ function renderModularBentoWorkspaceBlocks() {
     }
     else if(block.type === 'Notebook') {
       innerContentHtmlNode = `
-        <textarea class="simple-textarea" style="width:100%; height:100%; border:none; background:transparent; resize:none; font-size:13px; line-height:1.5;" 
-                  placeholder="Notes..." oninput="updateScratchpadStateMemoryValue('${block.id}', this.value)">${block.content || ''}</textarea>
+        <div style="font-size:13px; line-height:1.6; color:var(--text-grey); font-style:italic; padding:4px 0;">
+          ${block.content ? block.content.replace(/\n/g, '<br>') : 'No strategic guidelines initialized.'}
+        </div>
       `;
     }
     else if(block.type === 'LineChartBlock' || block.type === 'BarChartBlock') {
@@ -696,7 +734,6 @@ function checkAndExecuteDynamicPositionSwaps(activeDraggedDomNode) {
   appWorkspaceState.blocks.forEach(alternativeBlock => {
     if (alternativeBlock.id === activeId) return;
 
-    // Direct AABB Multi-Axis Intersect Verification Checking
     const isOverlapping = (
       currentX < alternativeBlock.x + alternativeBlock.w &&
       currentX + currentWidth > alternativeBlock.x &&
@@ -713,119 +750,9 @@ function checkAndExecuteDynamicPositionSwaps(activeDraggedDomNode) {
       const intersectArea = intersectW * intersectH;
       const targetTotalArea = alternativeBlock.w * alternativeBlock.h;
 
-      // Cross 25% area intersection thresholds to complete bidirectional grid alignment swap
       if (intersectArea > targetTotalArea * 0.25) {
         let savedTempTargetX = alternativeBlock.x;
         let savedTempTargetY = alternativeBlock.y;
 
-        // Command the passive intersecting block to immediately translate over to original vacated spot
         alternativeBlock.x = dragStartCoordsRecord.x;
-        alternativeBlock.y = dragStartCoordsRecord.y;
-
-        targetDomNode.style.transform = `translate(${alternativeBlock.x}px, ${alternativeBlock.y}px)`;
-        targetDomNode.setAttribute('data-x', alternativeBlock.x);
-        targetDomNode.setAttribute('data-y', alternativeBlock.y);
-
-        // Update current runtime track coordinates so the moving entity snaps into place securely on click release
-        dragStartCoordsRecord.x = savedTempTargetX;
-        dragStartCoordsRecord.y = savedTempTargetY;
-
-        draggedBlockStateObj.x = savedTempTargetX;
-        draggedBlockStateObj.y = savedTempTargetY;
-        
-        commitStateChangesToLocalStorage();
-      }
-    }
-  });
-}
-
-function renderSpendingCategoriesMatrixTab() {
-  const container = document.getElementById('matrix-category-full-list'); if(!container) return; container.innerHTML = '';
-  Object.keys(appWorkspaceState.categories).forEach(catName => {
-    let settings = appWorkspaceState.categories[catName];
-    let spent = 0; appWorkspaceState.transactions.forEach(t => { if(t.category === catName && t.type === 'Debit Outflow') spent += t.amount; });
-    let pct = settings.budget > 0 ? ((spent / settings.budget) * 100).toFixed(0) : 0;
-
-    let row = document.createElement('div'); row.style.marginBottom = '20px';
-    row.innerHTML = `
-      <div class="progress-labels"><strong>${catName}</strong><span>RM ${spent.toFixed(2)} / Limit: RM ${settings.budget}</span></div>
-      <div class="bar-background"><div class="bar-fill" style="width:${pct > 100 ? 100 : pct}%; background:${settings.color}"></div></div>
-    `;
-    container.appendChild(row);
-  });
-}
-
-function submitMatrixCategorySetupForm() {
-  const nameVal = document.getElementById('matrix-cat-name').value.trim();
-  const budgetVal = parseFloat(document.getElementById('matrix-cat-budget').value);
-  if(!nameVal || isNaN(budgetVal) || appWorkspaceState.categories[nameVal]) return;
-
-  appWorkspaceState.categories[nameVal] = { budget: budgetVal, color: document.getElementById('matrix-cat-color').value };
-  document.getElementById('matrix-cat-name').value = ''; document.getElementById('matrix-cat-budget').value = '';
-  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
-}
-
-function addCustomCategoryFromSidebar() {
-  const val = document.getElementById('sidebar-new-cat-input').value.trim();
-  if(!val || appWorkspaceState.categories[val]) return;
-  appWorkspaceState.categories[val] = { budget: 1000.00, color: "var(--teal)" };
-  document.getElementById('sidebar-new-cat-input').value = '';
-  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
-}
-
-function generateCustomBlockOnCanvas(type) {
-  const randId = `block-custom-${Date.now()}`;
-  appWorkspaceState.blocks.push({ id: randId, type: type, title: `Custom ${type}`, x: 40, y: 40, w: 320, h: 180 });
-  commitStateChangesToLocalStorage(); closeAddBlockMenuModal(); executeInterfaceRenderingPipeline();
-}
-
-function deleteTargetWorkspaceBlockNode(id) {
-  appWorkspaceState.blocks = appWorkspaceState.blocks.filter(b => b.id !== id);
-  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
-}
-
-function updateScratchpadStateMemoryValue(id, txt) {
-  let match = appWorkspaceState.blocks.find(b => b.id === id); if(match) { match.content = txt; commitStateChangesToLocalStorage(); }
-}
-
-function resetCanvasLayoutBlocks() {
-  if(confirm("Restore default layout settings?")) {
-    appWorkspaceState.blocks = [ ...PRESET_WORKSPACE_BLOCKS ];
-    commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
-  }
-}
-
-function submitLoggedTransactionForm() {
-  const descVal = document.getElementById('tx-form-desc').value.trim();
-  const amtVal = parseFloat(document.getElementById('tx-form-amount').value);
-  if(!descVal || isNaN(amtVal)) return;
-
-  appWorkspaceState.transactions.unshift({ date: new Date().toISOString().split('T')[0], desc: descVal, category: document.getElementById('tx-form-category').value, type: document.getElementById('tx-form-type').value, amount: amtVal });
-  document.getElementById('tx-form-desc').value = ''; document.getElementById('tx-form-amount').value = '';
-  commitStateChangesToLocalStorage(); closeTransactionFormModal(); executeInterfaceRenderingPipeline();
-}
-
-function executeMockOcrParsingAction(ref) {
-  if(!ref.files || !ref.files[0]) return;
-  const cat = document.getElementById('upload-matrix-selector').value;
-  document.getElementById('ocr-feedback-toast-panel').style.display = 'block';
-  document.getElementById('ocr-feedback-toast-panel').innerHTML = `<strong>⚡ Scanner Tool:</strong> Processed receipt entry value matching <strong>RM 142.80</strong>.`;
-
-  appWorkspaceState.transactions.unshift({ date: new Date().toISOString().split('T')[0], desc: "OCR Statement Captured Receipt", category: cat, type: "Debit Outflow", amount: 142.80 });
-  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
-}
-
-function switchViewTab(id) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active-tab'));
-  document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`view-${id}`).classList.add('active-tab');
-  document.getElementById(`nav-${id}`).classList.add('active');
-}
-
-function openAddBlockMenuModal() { document.getElementById('modal-add-block-overlay').style.display = 'flex'; }
-function closeAddBlockMenuModal() { document.getElementById('modal-add-block-overlay').style.display = 'none'; }
-function openTransactionFormModal() { document.getElementById('modal-transaction-overlay').style.display = 'flex'; }
-function closeTransactionFormModal() { document.getElementById('modal-transaction-overlay').style.display = 'none'; }
-</script>
-</body>
-</html>
+        alternativeBlock.
