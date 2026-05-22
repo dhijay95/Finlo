@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Finlo Engine — Omni Grid Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+
+<style>
+:root {
+  --teal:       #1D9E75;
+  --teal-lt:    #EBF9F4;
+  --teal-dk:    #0F6E56;
+  --purple:     #6C5CE7;
+  --purple-lt:  #F1EFFF;
+  --purple-dk:  #4A3CC0;
+  --amber:      #F59E0B;
+  --amber-lt:   #FEF8E7;
+  --amber-dk:   #B45309;
+  --red:        #EF4444;
+  --red-lt:     #FEEFEE;
+  
+  --bg:         #FAF8F5; 
+  --surface:    #FFFFFF;
+  --sidebar-bg: #0E121A; 
+  --sidebar-hover: #191F2D;
+  --border:     rgba(14, 16, 19, 0.06);
+  --border-dark: rgba(255, 255, 255, 0.08);
+  
+  --text-dark:  #12151C;
+  --text-grey:  #5E6573;
+  --text-light: #9AA2B1;
+  
+  --radius-lg:  20px;
+  --radius-md:  12px;
+  --radius-sm:  8px;
+  --sidebar-w:  290px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ════════════════════ FIXED LEFT SIDEBAR LAYOUT ════════════════════ */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  z-index: 200;
+  padding: 40px 24px;
+  border-right: 1px solid var(--border-dark);
+}
+
+.brand-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+.brand-icon {
+  width: 36px; height: 36px;
+  background: var(--teal);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(29, 158, 117, 0.3);
+}
+.brand-icon i { color: #fff; font-size: 18px; }
+
+.editable-title-wrapper {
+  display: flex; align-items: center; gap: 6px; cursor: pointer; width: 100%;
+}
+.brand-text {
+  font-size: 20px; font-weight: 800; color: #FAF8F5; outline: none;
+  border-bottom: 1px dashed transparent; transition: all 0.2s;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.brand-text:focus { border-bottom-color: var(--teal); background: rgba(255,255,255,0.05); }
+.brand-edit-icon { font-size: 12px; color: var(--text-light); opacity: 0.4; }
+.editable-title-wrapper:hover .brand-edit-icon { opacity: 1; color: var(--teal); }
+
+.sidebar-links { display: flex; flex-direction: column; gap: 6px; }
+.menu-btn {
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+  color: #A3A8B4; text-decoration: none; font-size: 14px; font-weight: 600;
+  border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;
+}
+.menu-btn:hover, .menu-btn.active { color: #FAF8F5; }
+.menu-btn.active {
+  background: linear-gradient(135deg, var(--sidebar-hover) 0%, rgba(29,158,117,0.08) 100%);
+  color: #FFFFFF; box-shadow: inset 4px 0 0 var(--teal);
+}
+.menu-btn.active i { color: var(--teal); }
+
+.editable-link-text { outline: none; border-bottom: 1px dashed transparent; padding-right: 4px; }
+.editable-link-text:focus { border-bottom-color: var(--teal); background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+/* ════════════════════ MAIN CANVAS AREA ════════════════════ */
+.workspace {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 40px 48px;
+  width: calc(100% - var(--sidebar-w));
+}
+.header-area {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 32px;
+}
+.greeting-title { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; color: var(--text-dark); }
+.greeting-sub { font-size: 13px; color: var(--text-grey); margin-top: 2px; }
+.top-action-bar { display: flex; gap: 12px; }
+
+.app-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; font-size: 13px; font-weight: 700;
+  border-radius: var(--radius-md); cursor: pointer; border: 1px solid transparent;
+  font-family: inherit; transition: all 0.2s ease;
+}
+.btn-teal { background: var(--teal); color: #fff; }
+.btn-teal:hover { background: var(--teal-dk); }
+.btn-purple { background: var(--purple); color: #fff; }
+.btn-purple:hover { background: var(--purple-dk); }
+.btn-outline { background: var(--surface); border-color: rgba(14,16,19,0.1); color: var(--text-dark); }
+.btn-outline:hover { background: var(--bg); }
+
+/* ════════════════════ DASHBOARD OMNI-SNAP BENTO CANVAS ════════════════════ */
+.bento-canvas-container {
+  position: relative;
+  width: 100%;
+  min-height: 1100px;
+  background: rgba(14, 16, 19, 0.01);
+  border-radius: var(--radius-lg);
+  border: 1px dashed rgba(14, 16, 19, 0.05);
+}
+
+.grid-block {
+  position: absolute;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 30px rgba(14,16,19,0.03);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  touch-action: none;
+  transition: transform 0.25s cubic-bezier(0.2, 1, 0.2, 1), width 0.2s ease, height 0.2s ease;
+}
+
+.grid-block.is-dragging {
+  transition: none !important;
+  z-index: 500;
+  box-shadow: 0 20px 45px rgba(14,16,19,0.12);
+}
+.grid-block.is-resizing {
+  transition: none !important;
+  z-index: 400;
+}
+
+.block-drag-handle {
+  padding: 14px 20px;
+  background: #FFFDFB;
+  border-bottom: 1px solid var(--border);
+  cursor: move;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.block-title-text { font-size: 14px; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.block-control-actions { display: flex; gap: 8px; align-items: center; }
+.block-action-icon { font-size: 16px; color: var(--text-light); cursor: pointer; transition: color 0.2s; }
+.block-action-icon:hover { color: var(--red); }
+
+/* STRICT COMPACT DASHBOARD ENGINE BLOCK (NO SCROLLING) */
+.block-body-content {
+  padding: 18px 22px;
+  flex: 1;
+  overflow: hidden; 
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.block-resize-grabber {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 16px; height: 16px;
+  cursor: se-resize;
+  background: linear-gradient(135deg, transparent 50%, var(--text-light) 50%);
+  border-bottom-right-radius: var(--radius-lg);
+  opacity: 0.3;
+}
+
+/* DATA VISUAL METRICS */
+.metric-amount { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace; margin: 4px 0; white-space: nowrap; }
+.metric-label { font-size: 11px; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* DATA TABLES MATRIX GRID */
+.data-table { width: 100%; border-collapse: collapse; text-align: left; }
+.data-table th {
+  padding: 8px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-light); font-weight: 700; border-bottom: 1px solid var(--border);
+}
+.data-table td { padding: 10px 10px; font-size: 12px; border-bottom: 1px solid var(--border); color: var(--text-dark); white-space: nowrap; }
+.category-pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+
+/* PROGRESS MATRICES */
+.progress-labels { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+.bar-background { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; margin-bottom: 14px; border: 1px solid var(--border); }
+.bar-fill { height: 100%; width: 0%; border-radius: 4px; transition: width 0.4s ease; }
+
+/* STATIC FORMS MODAL WINDOW SHEETS */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(18, 21, 26, 0.25); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  width: 100%; max-width: 460px; padding: 32px; border-radius: var(--radius-lg); box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+}
+.modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.input-group { margin-bottom: 16px; }
+.input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--text-grey); }
+.simple-input, .simple-select, .simple-textarea {
+  width: 100%; padding: 12px; border: 1px solid rgba(14,16,19,0.1); background: var(--bg);
+  font-family: inherit; font-size: 13px; border-radius: var(--radius-md); outline: none;
+}
+.simple-input:focus, .simple-select:focus, .simple-textarea:focus { border-color: var(--teal); background: #fff; }
+
+.tab-panel { display: none; }
+.tab-panel.active-tab { display: block; }
+
+.upload-dropzone {
+  border: 2px dashed rgba(29, 158, 117, 0.25); background: var(--teal-lt);
+  border-radius: var(--radius-lg); padding: 40px; text-align: center; cursor: pointer;
+}
+.upload-dropzone i { font-size: 40px; color: var(--teal); margin-bottom: 12px; }
+.toast-success { background: var(--teal-lt); color: var(--teal-dk); padding: 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; margin-top: 14px; display: none; border-left: 4px solid var(--teal); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand-box">
+    <div class="brand-icon"><i class="ti ti-adjustments-horizontal"></i></div>
+    <div class="editable-title-wrapper" onclick="document.getElementById('sidebar-app-title').focus()">
+      <div class="brand-text" id="sidebar-app-title" contenteditable="true" onblur="saveCustomWorkspaceName()" oninput="handleWorkspaceTitleUpdate(this.innerText)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">Kiren Finance</div>
+      <i class="ti ti-pencil brand-edit-icon"></i>
+    </div>
+  </div>
+  
+  <div class="sidebar-links">
+    <div class="menu-btn active" onclick="switchViewTab('workspace')" id="nav-workspace">
+      <i class="ti ti-layout-grid"></i>
+      <span class="editable-link-text" id="lbl-nav-workspace" contenteditable="true" onblur="saveSidebarLinkLabel('workspace')" onkeydown="handleLinkEnterKey(event)">Bento Workspace Layout</span>
+    </div>
+    <div class="menu-btn" onclick="switchViewTab('categories')" id="nav-categories">
+      <i class="ti ti-tags"></i>
+      <span class="editable-link-text" id="lbl-nav-categories" contenteditable="true" onblur="saveSidebarLinkLabel('categories')" onkeydown="handleLinkEnterKey(event)">Spending Matrix Setup</span>
+    </div>
+    <div class="menu-btn" onclick="switchViewTab('upload')" id="nav-upload">
+      <i class="ti ti-cloud-upload"></i>
+      <span class="editable-link-text" id="lbl-nav-upload" contenteditable="true" onblur="saveSidebarLinkLabel('upload')" onkeydown="handleLinkEnterKey(event)">Invoice OCR Scanners</span>
+    </div>
+  </div>
+
+  <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--border-dark);">
+    <p style="font-size:11px; text-transform:uppercase; color:var(--text-light); font-weight:700; margin-bottom:8px;">Add Matrix Category</p>
+    <div style="display:flex; gap:6px;">
+      <input type="text" id="sidebar-new-cat-input" class="simple-input" placeholder="e.g., Electronics" style="background:rgba(255,255,255,0.06); border:none; color:#fff; padding:8px 12px; font-size:12px;"/>
+      <button onclick="addCustomCategoryFromSidebar()" style="background:var(--teal); border:none; color:#fff; padding:0 12px; border-radius:var(--radius-md); cursor:pointer;"><i class="ti ti-plus"></i></button>
+    </div>
+  </div>
+</aside>
+
+<div class="workspace">
+
+  <header class="header-area">
+    <div>
+      <h1 class="greeting-title" id="greeting-display-text">Hi Kiren</h1>
+      <p class="greeting-sub" id="live-date-string">System Active Engine · Friday, May 22, 2026</p>
+    </div>
+    <div class="top-action-bar">
+      <button class="app-btn btn-purple" onclick="openAddBlockMenuModal()"><i class="ti ti-circle-plus"></i> Add Custom Block (+)</button>
+      <button class="app-btn btn-teal" onclick="openTransactionFormModal()"><i class="ti ti-plus"></i> Log Transaction</button>
+      <button class="app-btn btn-outline" onclick="resetCanvasLayoutBlocks()" title="Reset workspace blocks layouts back to factory presets"><i class="ti ti-refresh"></i> Reset Canvas</button>
+    </div>
+  </header>
+
+  <div id="view-workspace" class="tab-panel active-tab">
+    <div class="bento-canvas-container" id="modular-bento-canvas"></div>
+  </div>
+
+  <div id="view-categories" class="tab-panel">
+    <div style="background:var(--surface); padding:32px; border-radius:var(--radius-lg); border:1px solid var(--border); max-width:800px;">
+      <h3 style="font-size:20px; font-weight:800; margin-bottom:8px;">Create & Adjust Matrix Category Parameters</h3>
+      <p style="color:var(--text-grey); font-size:14px; margin-bottom:24px;">Setup limits and color profiles below to instantly bind transaction logs to dynamic target meters.</p>
+      
+      <div style="display:grid; grid-template-columns:2fr 1fr 1fr 100px; gap:12px; margin-bottom:20px;">
+        <input type="text" id="matrix-cat-name" class="simple-input" placeholder="Category Name"/>
+        <input type="number" id="matrix-cat-budget" class="simple-input" placeholder="Budget Cap (RM)" step="10"/>
+        <select id="matrix-cat-color" class="simple-select">
+          <option value="var(--teal)">Teal Matrix Accent</option>
+          <option value="var(--purple)">Purple Highlight</option>
+          <option value="var(--amber)">Amber Warning</option>
+          <option value="var(--text-grey)">Slate Charcoal</option>
+        </select>
+        <button class="app-btn btn-teal" onclick="submitMatrixCategorySetupForm()" style="justify-content:center;">Create</button>
+      </div>
+      <div id="matrix-category-full-list" style="margin-top:32px;"></div>
+    </div>
+  </div>
+
+  <div id="view-upload" class="tab-panel">
+    <div style="background:var(--surface); padding:48px; border-radius:var(--radius-lg); border:1px solid var(--border); max-width:700px; margin:0 auto; text-align:center;">
+      <i class="ti ti-scan-eye" style="font-size:48px; color:var(--purple); margin-bottom:16px; display:inline-block;"></i>
+      <h2 style="font-size:24px; font-weight:800; margin-bottom:8px;">Ingest Statements & Screenshot Slips</h2>
+      <p style="color:var(--text-grey); font-size:14px; max-width:500px; margin:0 auto 24px; line-height:1.6;">
+        Upload digital PDF sheets or bank statements. The interface extracts parsed records and assigns them into selected matrices automatically.
+      </p>
+
+      <div class="input-group" style="max-width:320px; margin:0 auto 20px; text-align:left;">
+        <label>Target Spending Matrix Binder Category</label>
+        <select id="upload-matrix-selector" class="simple-select"></select>
+      </div>
+
+      <input type="file" id="hidden-file-input-node" style="display:none;" onchange="executeMockOcrParsingAction(this)"/>
+      <div class="upload-dropzone" onclick="document.getElementById('hidden-file-input-node').click()">
+        <i class="ti ti-cloud-upload"></i>
+        <p style="font-weight:700; font-size:15px; color:var(--text-dark); margin-bottom:4px;">Drag and drop or browse local desktop files</p>
+        <p style="font-size:12px; color:var(--text-light);">Supports JPEG, PNG, or text PDFs up to 14MB</p>
+      </div>
+      <div class="toast-success" id="ocr-feedback-toast-panel"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-add-block-overlay">
+  <div class="modal-box">
+    <div class="modal-top">
+      <h3 style="font-size:18px; font-weight:800;"><i class="ti ti-square-plus" style="color:var(--purple)"></i> Append Custom Block Choice</h3>
+      <i class="ti ti-x" style="cursor:pointer; font-size:20px; color:var(--text-light);" onclick="closeAddBlockMenuModal()"></i>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('MetricCard')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-chart-bar" style="color:var(--teal)"></i> <strong>Financial Metric Counter Block</strong></button>
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('TransactionTable')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-table" style="color:var(--purple)"></i> <strong>Data Ledger Table Listing Block</strong></button>
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('Notebook')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-note" style="color:var(--amber)"></i> <strong>Editable Rich-Text Workspace Pad</strong></button>
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('LineChartBlock')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-chart-line" style="color:var(--purple)"></i> <strong>Timeline Spending Chart Block</strong></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-transaction-overlay">
+  <div class="modal-box">
+    <div class="modal-top">
+      <h3 style="font-size:18px; font-weight:800;">Log Ledger Transaction Record</h3>
+      <i class="ti ti-x" style="cursor:pointer; font-size:20px; color:var(--text-light);" onclick="closeTransactionFormModal()"></i>
+    </div>
+    <div class="input-group">
+      <label>Store Entity Description Name</label>
+      <input type="text" id="tx-form-desc" class="simple-input" placeholder="e.g., Jaya Grocer Supermarket Checkout"/>
+    </div>
+    <div class="input-group">
+      <label>Spending Category Matrix Match</label>
+      <select id="tx-form-category" class="simple-select"></select>
+    </div>
+    <div class="input-group">
+      <label>Transaction Inflow/Outflow Framework</label>
+      <select id="tx-form-type" class="simple-select">
+        <option value="Debit Outflow">Expense Outflow (Money Spent)</option>
+        <option value="Credit Inflow">Income Inflow (Capital Inbound)</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Amount Specification Value (RM)</label>
+      <input type="number" id="tx-form-amount" class="simple-input" placeholder="0.00" step="0.01"/>
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+      <button class="app-btn btn-outline" onclick="closeTransactionFormModal()">Discard Form</button>
+      <button class="app-btn btn-teal" onclick="submitLoggedTransactionForm()">Commit Entry Log</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GRID_SNAP_RESOLUTION_PX = 20;
+
+const DEFAULT_SYSTEM_CATEGORIES = {
+  "Food & Dining": { budget: 1500.00, color: "var(--teal)" },
+  "Rent & Housing": { budget: 3500.00, color: "var(--purple)" },
+  "Bills & Utilities": { budget: 1000.00, color: "var(--amber)" },
+  "Investments": { budget: 2000.00, color: "var(--purple)" }
+};
+
+const DEFAULT_TRANSACTION_ITEMS = [
+  { date: "2026-05-22", desc: "Jaya Grocer Checkout Link", category: "Food & Dining", type: "Debit Outflow", amount: 242.50 },
+  { date: "2026-05-21", desc: "Maybank Housing Loan Transfer", category: "Rent & Housing", type: "Debit Outflow", amount: 1750.00 },
+  { date: "2026-05-18", desc: "TNB Electric Account Bill", category: "Bills & Utilities", type: "Debit Outflow", amount: 180.00 },
+  { date: "2026-05-15", desc: "Unifi Digital Broadband Pack", category: "Bills & Utilities", type: "Debit Outflow", amount: 149.00 }
+];
+
+const PRESET_WORKSPACE_BLOCKS = [
+  { id: "block-budget-cap", type: "MetricCard", title: "Target Budget Pool", x: 20, y: 20, w: 280, h: 140, metricType: "budget" },
+  { id: "block-spent-counter", type: "MetricCard", title: "Total Tracked Outflows", x: 320, y: 20, w: 280, h: 140, metricType: "spent" },
+  { id: "block-remaining-pool", type: "MetricCard", title: "Remaining Cash Pool", x: 620, y: 20, w: 320, h: 140, metricType: "remaining" },
+  { id: "block-main-trendline", type: "LineChartBlock", title: "Monthly Expense Outflows Trend", x: 20, y: 180, w: 580, h: 320 },
+  { id: "block-workspace-scratchpad", type: "Notebook", title: "Strategic Notes Pad", x: 620, y: 180, w: 320, h: 320, content: "Deployment rules:\n- Verify transport receipts logs\n- Target weekly automate ETF matrix levels" },
+  { id: "block-tx-ledger", type: "TransactionTable", title: "Dynamic Ledger Transactions Registry", x: 20, y: 520, w: 580, h: 360 },
+  { id: "block-bar-distribution", type: "BarChartBlock", title: "Categorized Outflows Weekly Breakdown", x: 620, y: 520, w: 320, h: 360 }
+];
+
+let appWorkspaceState = { categories: {}, transactions: [], blocks: [] };
+let activeChartInstances = {};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const cachedWorkspaceTitle = localStorage.getItem('finlo_interactive_desktop_title') || "Kiren Finance";
+  document.getElementById('sidebar-app-title').innerText = cachedWorkspaceTitle;
+  handleWorkspaceTitleUpdate(cachedWorkspaceTitle);
+
+  if(localStorage.getItem('finlo_interactive_state_bundle_v5')) {
+    appWorkspaceState = JSON.parse(localStorage.getItem('finlo_interactive_state_bundle_v5'));
+  } else {
+    appWorkspaceState.categories = { ...DEFAULT_SYSTEM_CATEGORIES };
+    appWorkspaceState.transactions = [ ...DEFAULT_TRANSACTION_ITEMS ];
+    appWorkspaceState.blocks = [ ...PRESET_WORKSPACE_BLOCKS ];
+    commitStateChangesToLocalStorage();
+  }
+
+  initializeInteractGridEngine();
+  executeInterfaceRenderingPipeline();
+});
+
+function handleWorkspaceTitleUpdate(fullTitleText) {
+  const cleanTitle = fullTitleText.trim();
+  const titleDisplayElement = document.getElementById('greeting-display-text');
+  
+  if (cleanTitle.toLowerCase().endsWith('finance')) {
+    const cutoffIndex = cleanTitle.toLowerCase().lastIndexOf('finance');
+    const namePart = cleanTitle.substring(0, cutoffIndex).trim();
+    titleDisplayElement.innerText = namePart ? `Hi ${namePart}` : "Hi Workspace";
+  } else {
+    titleDisplayElement.innerText = `Hi ${cleanTitle}`;
+  }
+}
+
+function commitStateChangesToLocalStorage() {
+  localStorage.setItem('finlo_interactive_state_bundle_v5', JSON.stringify(appWorkspaceState));
+}
+
+function saveCustomWorkspaceName() {
+  const nodeTxt = document.getElementById('sidebar-app-title').innerText.trim();
+  if(nodeTxt !== "") {
+    localStorage.setItem('finlo_interactive_desktop_title', nodeTxt);
+    handleWorkspaceTitleUpdate(nodeTxt);
+  }
+}
+
+function handleLinkEnterKey(event) { if (event.key === 'Enter') { event.preventDefault(); event.target.blur(); } }
+function saveSidebarLinkLabel(tabKey) {
+  const val = document.getElementById(`lbl-nav-${tabKey}`).innerText.trim();
+  if(val !== "") localStorage.setItem(`finlo_nav_label_${tabKey}`, val);
+}
+
+function executeInterfaceRenderingPipeline() {
+  syncFormDropdownMenus();
+  renderModularBentoWorkspaceBlocks();
+  renderSpendingCategoriesMatrixTab();
+}
+
+function syncFormDropdownMenus() {
+  const selectors = ['tx-form-category', 'upload-matrix-selector'].map(id => document.getElementById(id));
+  selectors.forEach(el => { if(el) el.innerHTML = ''; });
+  Object.keys(appWorkspaceState.categories).forEach(catKey => {
+    let opt = document.createElement('option'); opt.value = catKey; opt.innerText = catKey;
+    selectors[0].appendChild(opt); selectors[1].appendChild(opt.cloneNode(true));
+  });
+}
+
+function renderModularBentoWorkspaceBlocks() {
+  const workspaceContainerCanvas = document.getElementById('modular-bento-canvas');
+  if(!workspaceContainerCanvas) return;
+  
+  Object.keys(activeChartInstances).forEach(id => {
+    if(activeChartInstances[id]) { activeChartInstances[id].destroy(); delete activeChartInstances[id]; }
+  });
+  workspaceContainerCanvas.innerHTML = '';
+
+  appWorkspaceState.blocks.forEach(block => {
+    let cardWrapperElement = document.createElement('div');
+    cardWrapperElement.className = 'grid-block';
+    cardWrapperElement.id = block.id;
+    cardWrapperElement.style.width = `${block.w}px`;
+    cardWrapperElement.style.height = `${block.h}px`;
+    cardWrapperElement.style.transform = `translate(${block.x}px, ${block.y}px)`;
+    cardWrapperElement.setAttribute('data-x', block.x);
+    cardWrapperElement.setAttribute('data-y', block.y);
+
+    let innerContentHtmlNode = '';
+    
+    if(block.type === 'MetricCard') {
+      let numericDisplayResult = 'RM 0.00';
+      let captionSubtextDescription = '';
+      let totalBudgetAggregate = 0;
+      Object.keys(appWorkspaceState.categories).forEach(k => totalBudgetAggregate += appWorkspaceState.categories[k].budget);
+      let totalSpentAggregate = 0;
+      appWorkspaceState.transactions.forEach(t => { if(t.type === 'Debit Outflow') totalSpentAggregate += t.amount; });
+
+      if(block.metricType === 'budget') {
+        numericDisplayResult = `RM ${totalBudgetAggregate.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        captionSubtextDescription = 'Structural target ceiling cap.';
+      } else if(block.metricType === 'spent') {
+        numericDisplayResult = `RM ${totalSpentAggregate.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        cardWrapperElement.style.borderLeft = "4px solid var(--purple)";
+        captionSubtextDescription = 'Calculated ledger parameters.';
+      } else {
+        let remainingCashAmountValue = totalBudgetAggregate - totalSpentAggregate;
+        numericDisplayResult = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+        cardWrapperElement.style.borderLeft = remainingCashAmountValue < 0 ? "4px solid var(--red)" : "4px solid var(--teal)";
+        captionSubtextDescription = remainingCashAmountValue < 0 ? 'Over budget tracking levels!' : 'Safe spending margin available.';
+      }
+
+      innerContentHtmlNode = `
+        <div class="metric-label">${block.title}</div>
+        <div class="metric-amount">${numericDisplayResult}</div>
+        <p style="font-size:12px; color:var(--text-grey); font-weight:500; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${captionSubtextDescription}</p>
+      `;
+    } 
+    else if(block.type === 'TransactionTable') {
+      let innerRowsDataString = '';
+      appWorkspaceState.transactions.slice(0, 4).forEach(tx => {
+        innerRowsDataString += `
+          <tr>
+            <td style="color:var(--text-grey); font-family:'JetBrains Mono'; font-size:11px;">${tx.date}</td>
+            <td style="font-weight:700; max-width:140px; overflow:hidden; text-overflow:ellipsis;">${tx.desc}</td>
+            <td><span class="category-pill" style="background:var(--teal-lt); color:var(--teal-dk);">${tx.category}</span></td>
+            <td style="text-align:right; font-weight:700;">RM ${tx.amount.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+      innerContentHtmlNode = `
+        <table class="data-table">
+          <thead><tr><th>DATE</th><th>ITEM TARGET</th><th>MATRIX</th><th style="text-align:right;">AMOUNT</th></tr></thead>
+          <tbody>${innerRowsDataString || '<tr><td colspan="4">No entries.</td></tr>'}</tbody>
+        </table>
+      `;
+    }
+    else if(block.type === 'Notebook') {
+      innerContentHtmlNode = `
+        <textarea class="simple-textarea" style="width:100%; height:100%; border:none; background:transparent; resize:none; font-size:13px; line-height:1.5;" 
+                  placeholder="Notes..." oninput="updateScratchpadStateMemoryValue('${block.id}', this.value)">${block.content || ''}</textarea>
+      `;
+    }
+    else if(block.type === 'LineChartBlock' || block.type === 'BarChartBlock') {
+      innerContentHtmlNode = `<div style="width:100%; height:100%; position:relative;"><canvas id="canvas-${block.id}"></canvas></div>`;
+    }
+
+    cardWrapperElement.innerHTML = `
+      <div class="block-drag-handle">
+        <div class="block-title-text"><i class="ti ti-grip-vertical" style="color:var(--text-light); opacity:0.6;"></i> ${block.title}</div>
+        <div class="block-control-actions"><i class="ti ti-trash block-action-icon" onclick="deleteTargetWorkspaceBlockNode('${block.id}')"></i></div>
+      </div>
+      <div class="block-body-content">${innerContentHtmlNode}</div>
+      <div class="block-resize-grabber"></div>
+    `;
+
+    workspaceContainerCanvas.appendChild(cardWrapperElement);
+
+    if(block.type === 'LineChartBlock') setTimeout(() => renderLineGraphDataChartInstance(block.id), 20);
+    if(block.type === 'BarChartBlock') setTimeout(() => renderBarGraphDataChartInstance(block.id), 20);
+  });
+}
+
+function renderLineGraphDataChartInstance(blockId) {
+  const el = document.getElementById(`canvas-${blockId}`); if(!el) return;
+  activeChartInstances[blockId] = new Chart(el.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['May 01', 'May 08', 'May 15', 'May 22'],
+      datasets: [{ label: 'Outflows', data: [200, 530, 1140, 2321], borderColor: '#6C5CE7', tension: 0.15, fill: false }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+}
+
+function renderBarGraphDataChartInstance(blockId) {
+  const el = document.getElementById(`canvas-${blockId}`); if(!el) return;
+  activeChartInstances[blockId] = new Chart(el.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(appWorkspaceState.categories),
+      datasets: [{ data: [1080, 1750, 329, 0], backgroundColor: '#1D9E75' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+}
+
+// ════════════════════ OMNIDIRECTIONAL MULTI-AXIS SWAPPING COLLISION ENGINE ════════════════════
+let dragStartCoordsRecord = { x: 0, y: 0 };
+
+function initializeInteractGridEngine() {
+  interact('.grid-block')
+    .draggable({
+      allowFrom: '.block-drag-handle',
+      listeners: {
+        start(event) {
+          const targetNode = event.target;
+          targetNode.classList.add('is-dragging');
+          dragStartCoordsRecord.x = parseFloat(targetNode.getAttribute('data-x')) || 0;
+          dragStartCoordsRecord.y = parseFloat(targetNode.getAttribute('data-y')) || 0;
+        },
+        move(event) {
+          const targetNode = event.target;
+          let currentRawX = (parseFloat(targetNode.getAttribute('data-x')) || 0) + event.dx;
+          let currentRawY = (parseFloat(targetNode.getAttribute('data-y')) || 0) + event.dy;
+
+          targetNode.style.transform = `translate(${currentRawX}px, ${currentRawY}px)`;
+          targetNode.setAttribute('data-x', currentRawX);
+          targetNode.setAttribute('data-y', currentRawY);
+
+          checkAndExecuteDynamicPositionSwaps(targetNode);
+        },
+        end(event) {
+          const targetNode = event.target;
+          targetNode.classList.remove('is-dragging');
+
+          let rawX = parseFloat(targetNode.getAttribute('data-x')) || 0;
+          let rawY = parseFloat(targetNode.getAttribute('data-y')) || 0;
+
+          let snappedX = Math.round(rawX / GRID_SNAP_RESOLUTION_PX) * GRID_SNAP_RESOLUTION_PX;
+          let snappedY = Math.round(rawY / GRID_SNAP_RESOLUTION_PX) * GRID_SNAP_RESOLUTION_PX;
+          if (snappedX < 0) snappedX = 0; if (snappedY < 0) snappedY = 0;
+
+          targetNode.style.transform = `translate(${snappedX}px, ${snappedY}px)`;
+          targetNode.setAttribute('data-x', snappedX);
+          targetNode.setAttribute('data-y', snappedY);
+
+          let blockMatch = appWorkspaceState.blocks.find(b => b.id === targetNode.id);
+          if(blockMatch) { blockMatch.x = snappedX; blockMatch.y = snappedY; }
+          commitStateChangesToLocalStorage();
+        }
+      }
+    })
+    .resizable({
+      edges: { right: true, bottom: true },
+      listeners: {
+        start(event) { event.target.classList.add('is-resizing'); },
+        move(event) {
+          let targetNode = event.target;
+          let w = event.rect.width < 220 ? 220 : event.rect.width;
+          let h = event.rect.height < 120 ? 120 : event.rect.height;
+          targetNode.style.width = `${w}px`; targetNode.style.height = `${h}px`;
+        },
+        end(event) {
+          let targetNode = event.target;
+          targetNode.classList.remove('is-resizing');
+          let snappedW = Math.round(targetNode.offsetWidth / GRID_SNAP_RESOLUTION_PX) * GRID_SNAP_RESOLUTION_PX;
+          let snappedH = Math.round(targetNode.offsetHeight / GRID_SNAP_RESOLUTION_PX) * GRID_SNAP_RESOLUTION_PX;
+
+          targetNode.style.width = `${snappedW}px`; targetNode.style.height = `${snappedH}px`;
+          let blockMatch = appWorkspaceState.blocks.find(b => b.id === targetNode.id);
+          if(blockMatch) { blockMatch.w = snappedW; blockMatch.h = snappedH; }
+          commitStateChangesToLocalStorage();
+          if(activeChartInstances[targetNode.id]) activeChartInstances[targetNode.id].resize();
+        }
+      }
+    });
+}
+
+function checkAndExecuteDynamicPositionSwaps(activeDraggedDomNode) {
+  const activeId = activeDraggedDomNode.id;
+  const draggedBlockStateObj = appWorkspaceState.blocks.find(b => b.id === activeId);
+  if (!draggedBlockStateObj) return;
+
+  const currentX = parseFloat(activeDraggedDomNode.getAttribute('data-x')) || 0;
+  const currentY = parseFloat(activeDraggedDomNode.getAttribute('data-y')) || 0;
+  const currentWidth = activeDraggedDomNode.offsetWidth;
+  const currentHeight = activeDraggedDomNode.offsetHeight;
+
+  appWorkspaceState.blocks.forEach(alternativeBlock => {
+    if (alternativeBlock.id === activeId) return;
+
+    // Direct AABB Multi-Axis Intersect Verification Checking
+    const isOverlapping = (
+      currentX < alternativeBlock.x + alternativeBlock.w &&
+      currentX + currentWidth > alternativeBlock.x &&
+      currentY < alternativeBlock.y + alternativeBlock.h &&
+      currentY + currentHeight > alternativeBlock.y
+    );
+
+    if (isOverlapping) {
+      const targetDomNode = document.getElementById(alternativeBlock.id);
+      if (!targetDomNode || targetDomNode.classList.contains('is-dragging')) return;
+
+      const intersectW = Math.min(currentX + currentWidth, alternativeBlock.x + alternativeBlock.w) - Math.max(currentX, alternativeBlock.x);
+      const intersectH = Math.min(currentY + currentHeight, alternativeBlock.y + alternativeBlock.h) - Math.max(currentY, alternativeBlock.y);
+      const intersectArea = intersectW * intersectH;
+      const targetTotalArea = alternativeBlock.w * alternativeBlock.h;
+
+      // Cross 25% area intersection thresholds to complete bidirectional grid alignment swap
+      if (intersectArea > targetTotalArea * 0.25) {
+        let savedTempTargetX = alternativeBlock.x;
+        let savedTempTargetY = alternativeBlock.y;
+
+        // Command the passive intersecting block to immediately translate over to original vacated spot
+        alternativeBlock.x = dragStartCoordsRecord.x;
+        alternativeBlock.y = dragStartCoordsRecord.y;
+
+        targetDomNode.style.transform = `translate(${alternativeBlock.x}px, ${alternativeBlock.y}px)`;
+        targetDomNode.setAttribute('data-x', alternativeBlock.x);
+        targetDomNode.setAttribute('data-y', alternativeBlock.y);
+
+        // Update current runtime track coordinates so the moving entity snaps into place securely on click release
+        dragStartCoordsRecord.x = savedTempTargetX;
+        dragStartCoordsRecord.y = savedTempTargetY;
+
+        draggedBlockStateObj.x = savedTempTargetX;
+        draggedBlockStateObj.y = savedTempTargetY;
+        
+        commitStateChangesToLocalStorage();
+      }
+    }
+  });
+}
+
+function renderSpendingCategoriesMatrixTab() {
+  const container = document.getElementById('matrix-category-full-list'); if(!container) return; container.innerHTML = '';
+  Object.keys(appWorkspaceState.categories).forEach(catName => {
+    let settings = appWorkspaceState.categories[catName];
+    let spent = 0; appWorkspaceState.transactions.forEach(t => { if(t.category === catName && t.type === 'Debit Outflow') spent += t.amount; });
+    let pct = settings.budget > 0 ? ((spent / settings.budget) * 100).toFixed(0) : 0;
+
+    let row = document.createElement('div'); row.style.marginBottom = '20px';
+    row.innerHTML = `
+      <div class="progress-labels"><strong>${catName}</strong><span>RM ${spent.toFixed(2)} / Limit: RM ${settings.budget}</span></div>
+      <div class="bar-background"><div class="bar-fill" style="width:${pct > 100 ? 100 : pct}%; background:${settings.color}"></div></div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function submitMatrixCategorySetupForm() {
+  const nameVal = document.getElementById('matrix-cat-name').value.trim();
+  const budgetVal = parseFloat(document.getElementById('matrix-cat-budget').value);
+  if(!nameVal || isNaN(budgetVal) || appWorkspaceState.categories[nameVal]) return;
+
+  appWorkspaceState.categories[nameVal] = { budget: budgetVal, color: document.getElementById('matrix-cat-color').value };
+  document.getElementById('matrix-cat-name').value = ''; document.getElementById('matrix-cat-budget').value = '';
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function addCustomCategoryFromSidebar() {
+  const val = document.getElementById('sidebar-new-cat-input').value.trim();
+  if(!val || appWorkspaceState.categories[val]) return;
+  appWorkspaceState.categories[val] = { budget: 1000.00, color: "var(--teal)" };
+  document.getElementById('sidebar-new-cat-input').value = '';
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function generateCustomBlockOnCanvas(type) {
+  const randId = `block-custom-${Date.now()}`;
+  appWorkspaceState.blocks.push({ id: randId, type: type, title: `Custom ${type}`, x: 40, y: 40, w: 320, h: 180 });
+  commitStateChangesToLocalStorage(); closeAddBlockMenuModal(); executeInterfaceRenderingPipeline();
+}
+
+function deleteTargetWorkspaceBlockNode(id) {
+  appWorkspaceState.blocks = appWorkspaceState.blocks.filter(b => b.id !== id);
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function updateScratchpadStateMemoryValue(id, txt) {
+  let match = appWorkspaceState.blocks.find(b => b.id === id); if(match) { match.content = txt; commitStateChangesToLocalStorage(); }
+}
+
+function resetCanvasLayoutBlocks() {
+  if(confirm("Restore default layout settings?")) {
+    appWorkspaceState.blocks = [ ...PRESET_WORKSPACE_BLOCKS ];
+    commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+  }
+}
+
+function submitLoggedTransactionForm() {
+  const descVal = document.getElementById('tx-form-desc').value.trim();
+  const amtVal = parseFloat(document.getElementById('tx-form-amount').value);
+  if(!descVal || isNaN(amtVal)) return;
+
+  appWorkspaceState.transactions.unshift({ date: new Date().toISOString().split('T')[0], desc: descVal, category: document.getElementById('tx-form-category').value, type: document.getElementById('tx-form-type').value, amount: amtVal });
+  document.getElementById('tx-form-desc').value = ''; document.getElementById('tx-form-amount').value = '';
+  commitStateChangesToLocalStorage(); closeTransactionFormModal(); executeInterfaceRenderingPipeline();
+}
+
+function executeMockOcrParsingAction(ref) {
+  if(!ref.files || !ref.files[0]) return;
+  const cat = document.getElementById('upload-matrix-selector').value;
+  document.getElementById('ocr-feedback-toast-panel').style.display = 'block';
+  document.getElementById('ocr-feedback-toast-panel').innerHTML = `<strong>⚡ Scanner Tool:</strong> Processed receipt entry value matching <strong>RM 142.80</strong>.`;
+
+  appWorkspaceState.transactions.unshift({ date: new Date().toISOString().split('T')[0], desc: "OCR Statement Captured Receipt", category: cat, type: "Debit Outflow", amount: 142.80 });
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function switchViewTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active-tab'));
+  document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`view-${id}`).classList.add('active-tab');
+  document.getElementById(`nav-${id}`).classList.add('active');
+}
+
+function openAddBlockMenuModal() { document.getElementById('modal-add-block-overlay').style.display = 'flex'; }
+function closeAddBlockMenuModal() { document.getElementById('modal-add-block-overlay').style.display = 'none'; }
+function openTransactionFormModal() { document.getElementById('modal-transaction-overlay').style.display = 'flex'; }
+function closeTransactionFormModal() { document.getElementById('modal-transaction-overlay').style.display = 'none'; }
+</script>
+</body>
+</html>
