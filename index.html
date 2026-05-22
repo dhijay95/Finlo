@@ -207,16 +207,21 @@ body {
 }
 
 /* DATA VISUAL METRICS */
-.metric-amount { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace; margin: 4px 0; white-space: nowrap; }
+.metric-amount { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace; margin: 4px 0; white-space: nowrap; }
 .metric-label { font-size: 11px; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* IN-LINE POOL HOVER EDIT STYLING */
-.editable-pool-input {
-  font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace;
-  color: var(--text-dark); border: none; background: transparent; outline: none; width: 100%;
-  border-bottom: 2px dashed rgba(29, 158, 117, 0.2); padding-bottom: 2px; transition: border-color 0.2s;
+/* REVISED TARGET BUDGET INLINE EDIT LABELS Matrix */
+.budget-pool-edit-row {
+  display: flex; align-items: center; justify-content: space-between; margin: 4px 0; gap: 8px;
 }
-.editable-pool-input:focus { border-bottom-color: var(--teal); background: rgba(29, 158, 117, 0.03); }
+.budget-pool-label { font-size: 12px; font-weight: 700; color: var(--text-grey); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.budget-pool-input-box {
+  display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); padding: 4px 8px; border-radius: var(--radius-sm); max-width: 120px;
+}
+.budget-pool-input-box span { font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 700; color: var(--text-grey); margin-right: 2px; }
+.budget-inline-field {
+  font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 700; color: var(--text-dark); border: none; background: transparent; outline: none; width: 100%; text-align: right;
+}
 
 /* DATA TABLES MATRIX GRID */
 .data-table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -425,16 +430,16 @@ const DEFAULT_TRANSACTION_ITEMS = [
 ];
 
 const PRESET_WORKSPACE_BLOCKS = [
-  { id: "block-budget-cap", type: "MetricCard", title: "Target Budget Pool", x: 20, y: 20, w: 280, h: 140, metricType: "budget" },
-  { id: "block-spent-counter", type: "MetricCard", title: "Total Tracked Outflows", x: 320, y: 20, w: 280, h: 140, metricType: "spent" },
-  { id: "block-remaining-pool", type: "MetricCard", title: "Remaining Cash Pool", x: 620, y: 20, w: 320, h: 140, metricType: "remaining" },
-  { id: "block-main-trendline", type: "LineChartBlock", title: "Monthly Expense Outflows Trend", x: 20, y: 180, w: 580, h: 320 },
-  { id: "block-workspace-scratchpad", type: "Notebook", title: "Strategic Notes Pad", x: 620, y: 180, w: 320, h: 320, content: "Deployment rules:\n- Verify transport receipts logs\n- Target weekly automate ETF matrix levels" },
-  { id: "block-tx-ledger", type: "TransactionTable", title: "Dynamic Ledger Transactions Registry", x: 20, y: 520, w: 580, h: 360 },
-  { id: "block-bar-distribution", type: "BarChartBlock", title: "Categorized Outflows Weekly Breakdown", x: 620, y: 520, w: 320, h: 360 }
+  { id: "block-budget-cap", type: "MetricCard", title: "Target Budget Pools", x: 20, y: 20, w: 280, h: 220, metricType: "budget" },
+  { id: "block-spent-counter", type: "MetricCard", title: "Total Tracked Outflows", x: 320, y: 20, w: 280, h: 220, metricType: "spent" },
+  { id: "block-remaining-pool", type: "MetricCard", title: "Remaining Cash Pool", x: 620, y: 20, w: 320, h: 220, metricType: "remaining" },
+  { id: "block-main-trendline", type: "LineChartBlock", title: "Monthly Expense Outflows Trend", x: 20, y: 260, w: 580, h: 320 },
+  { id: "block-workspace-scratchpad", type: "Notebook", title: "Strategic Notes Pad", x: 620, y: 260, w: 320, h: 320, content: "Deployment rules:\n- Verify transport receipts logs\n- Target weekly automate ETF matrix levels" },
+  { id: "block-tx-ledger", type: "TransactionTable", title: "Dynamic Ledger Transactions Registry", x: 20, y: 600, w: 580, h: 360 },
+  { id: "block-bar-distribution", type: "BarChartBlock", title: "Categorized Outflows Weekly Breakdown", x: 620, y: 600, w: 320, h: 360 }
 ];
 
-let appWorkspaceState = { categories: {}, transactions: [], blocks: [], customOverriddenBudget: null };
+let appWorkspaceState = { categories: {}, transactions: [], blocks: [] };
 let activeChartInstances = {};
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -442,13 +447,12 @@ window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('sidebar-app-title').innerText = cachedWorkspaceTitle;
   handleWorkspaceTitleUpdate(cachedWorkspaceTitle);
 
-  if(localStorage.getItem('finlo_interactive_state_bundle_v6')) {
-    appWorkspaceState = JSON.parse(localStorage.getItem('finlo_interactive_state_bundle_v6'));
+  if(localStorage.getItem('finlo_interactive_state_bundle_v7')) {
+    appWorkspaceState = JSON.parse(localStorage.getItem('finlo_interactive_state_bundle_v7'));
   } else {
     appWorkspaceState.categories = { ...DEFAULT_SYSTEM_CATEGORIES };
     appWorkspaceState.transactions = [ ...DEFAULT_TRANSACTION_ITEMS ];
     appWorkspaceState.blocks = [ ...PRESET_WORKSPACE_BLOCKS ];
-    appWorkspaceState.customOverriddenBudget = null;
     commitStateChangesToLocalStorage();
   }
 
@@ -470,7 +474,7 @@ function handleWorkspaceTitleUpdate(fullTitleText) {
 }
 
 function commitStateChangesToLocalStorage() {
-  localStorage.setItem('finlo_interactive_state_bundle_v6', JSON.stringify(appWorkspaceState));
+  localStorage.setItem('finlo_interactive_state_bundle_v7', JSON.stringify(appWorkspaceState));
 }
 
 function saveCustomWorkspaceName() {
@@ -502,22 +506,33 @@ function syncFormDropdownMenus() {
   });
 }
 
-function handleLiveBudgetInputUpdate(newVal) {
-  const numericVal = parseFloat(newVal.replace(/[^0-9.]/g, ''));
-  if (!isNaN(numericVal)) {
-    appWorkspaceState.customOverriddenBudget = numericVal;
+function updateLiveCategoryBudgetAmount(catKey, textValue) {
+  const numericParsed = parseFloat(textValue);
+  if (!isNaN(numericParsed) && numericParsed >= 0) {
+    appWorkspaceState.categories[catKey].budget = numericParsed;
     commitStateChangesToLocalStorage();
-    
-    // Live recalculate remaining block cleanly without needing complete re-render cycles
-    let totalSpentAggregate = 0;
-    appWorkspaceState.transactions.forEach(t => { if(t.type === 'Debit Outflow') totalSpentAggregate += t.amount; });
-    const remainingCashAmountValue = numericVal - totalSpentAggregate;
-    
-    const remainingValNode = document.getElementById('value-display-block-remaining-pool');
-    if (remainingValNode) {
-      remainingValNode.innerText = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+    recalculateGlobalSummaryPoolDisplays();
+  }
+}
+
+function recalculateGlobalSummaryPoolDisplays() {
+  let targetBudgetAggregateTotal = 0;
+  Object.keys(appWorkspaceState.categories).forEach(k => targetBudgetAggregateTotal += appWorkspaceState.categories[k].budget);
+  
+  let totalSpentAggregate = 0;
+  appWorkspaceState.transactions.forEach(t => { if(t.type === 'Debit Outflow') totalSpentAggregate += t.amount; });
+  
+  const remainingCashAmountValue = targetBudgetAggregateTotal - totalSpentAggregate;
+
+  const remainingValNode = document.getElementById('value-display-block-remaining-pool');
+  if (remainingValNode) {
+    remainingValNode.innerText = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+    const parentBlockNode = remainingValNode.closest('.grid-block');
+    if (parentBlockNode) {
+      parentBlockNode.style.borderLeft = remainingCashAmountValue < 0 ? "4px solid var(--red)" : "4px solid var(--teal)";
     }
   }
+  renderSpendingCategoriesMatrixTab();
 }
 
 function renderModularBentoWorkspaceBlocks() {
@@ -544,21 +559,30 @@ function renderModularBentoWorkspaceBlocks() {
     if(block.type === 'MetricCard') {
       let totalBudgetAggregate = 0;
       Object.keys(appWorkspaceState.categories).forEach(k => totalBudgetAggregate += appWorkspaceState.categories[k].budget);
-      if (appWorkspaceState.customOverriddenBudget !== null) {
-        totalBudgetAggregate = appWorkspaceState.customOverriddenBudget;
-      }
       
       let totalSpentAggregate = 0;
       appWorkspaceState.transactions.forEach(t => { if(t.type === 'Debit Outflow') totalSpentAggregate += t.amount; });
 
       if(block.metricType === 'budget') {
+        let inputRowsHtml = '';
+        Object.keys(appWorkspaceState.categories).forEach(catKey => {
+          const currentBudgetValue = appWorkspaceState.categories[catKey].budget;
+          inputRowsHtml += `
+            <div class="budget-pool-edit-row">
+              <span class="budget-pool-label">${catKey}</span>
+              <div class="budget-pool-input-box">
+                <span>RM</span>
+                <input type="number" class="budget-inline-field" value="${currentBudgetValue}" step="50" oninput="updateLiveCategoryBudgetAmount('${catKey}', this.value)" />
+              </div>
+            </div>
+          `;
+        });
+
         innerContentHtmlNode = `
-          <div class="metric-label">${block.title}</div>
-          <div style="margin: 4px 0; display:flex; align-items:center;">
-            <span style="font-size:28px; font-weight:800; font-family:'JetBrains Mono'; color:var(--teal); margin-right:4px;">RM</span>
-            <input type="text" class="editable-pool-input" value="${totalBudgetAggregate.toFixed(2)}" oninput="handleLiveBudgetInputUpdate(this.value)" />
+          <div class="metric-label" style="margin-bottom: 8px;">${block.title}</div>
+          <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+            ${inputRowsHtml}
           </div>
-          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Directly editable tracking limit.</p>
         `;
       } else if(block.metricType === 'spent') {
         let numericDisplayResult = `RM ${totalSpentAggregate.toLocaleString('en-US', {minimumFractionDigits:2})}`;
@@ -566,7 +590,7 @@ function renderModularBentoWorkspaceBlocks() {
         innerContentHtmlNode = `
           <div class="metric-label">${block.title}</div>
           <div class="metric-amount">${numericDisplayResult}</div>
-          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Calculated ledger parameters.</p>
+          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Calculated total outflows.</p>
         `;
       } else {
         let remainingCashAmountValue = totalBudgetAggregate - totalSpentAggregate;
@@ -702,7 +726,7 @@ function initializeInteractGridEngine() {
         move(event) {
           let targetNode = event.target;
           let w = event.rect.width < 220 ? 220 : event.rect.width;
-          let h = event.rect.height < 120 ? 120 : event.rect.height;
+          let h = event.rect.height < 140 ? 140 : event.rect.height;
           targetNode.style.width = `${w}px`; targetNode.style.height = `${h}px`;
         },
         end(event) {
@@ -755,4 +779,108 @@ function checkAndExecuteDynamicPositionSwaps(activeDraggedDomNode) {
         let savedTempTargetY = alternativeBlock.y;
 
         alternativeBlock.x = dragStartCoordsRecord.x;
-        alternativeBlock.
+        alternativeBlock.y = dragStartCoordsRecord.y;
+
+        targetDomNode.style.transform = `translate(${alternativeBlock.x}px, ${alternativeBlock.y}px)`;
+        targetDomNode.setAttribute('data-x', alternativeBlock.x);
+        targetDomNode.setAttribute('data-y', alternativeBlock.y);
+
+        dragStartCoordsRecord.x = savedTempTargetX;
+        dragStartCoordsRecord.y = savedTempTargetY;
+
+        draggedBlockStateObj.x = savedTempTargetX;
+        draggedBlockStateObj.y = savedTempTargetY;
+        
+        commitStateChangesToLocalStorage();
+      }
+    }
+  });
+}
+
+function renderSpendingCategoriesMatrixTab() {
+  const container = document.getElementById('matrix-category-full-list'); if(!container) return; container.innerHTML = '';
+  Object.keys(appWorkspaceState.categories).forEach(catName => {
+    let settings = appWorkspaceState.categories[catName];
+    let spent = 0; appWorkspaceState.transactions.forEach(t => { if(t.category === catName && t.type === 'Debit Outflow') spent += t.amount; });
+    let pct = settings.budget > 0 ? ((spent / settings.budget) * 100).toFixed(0) : 0;
+
+    let row = document.createElement('div'); row.style.marginBottom = '20px';
+    row.innerHTML = `
+      <div class="progress-labels"><strong>${catName}</strong><span>RM ${spent.toFixed(2)} / Limit: RM ${settings.budget}</span></div>
+      <div class="bar-background"><div class="bar-fill" style="width:${pct > 100 ? 100 : pct}%; background:${settings.color}"></div></div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function submitMatrixCategorySetupForm() {
+  const nameVal = document.getElementById('matrix-cat-name').value.trim();
+  const budgetVal = parseFloat(document.getElementById('matrix-cat-budget').value);
+  if(!nameVal || isNaN(budgetVal) || appWorkspaceState.categories[nameVal]) return;
+
+  appWorkspaceState.categories[nameVal] = { budget: budgetVal, color: document.getElementById('matrix-cat-color').value };
+  document.getElementById('matrix-cat-name').value = ''; document.getElementById('matrix-cat-budget').value = '';
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function addCustomCategoryFromSidebar() {
+  const val = document.getElementById('sidebar-new-cat-input').value.trim();
+  if(!val || appWorkspaceState.categories[val]) return;
+  appWorkspaceState.categories[val] = { budget: 1000.00, color: "var(--teal)" };
+  document.getElementById('sidebar-new-cat-input').value = '';
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function generateCustomBlockOnCanvas(type) {
+  const randId = `block-custom-${Date.now()}`;
+  appWorkspaceState.blocks.push({ id: randId, type: type, title: `Custom ${type}`, x: 40, y: 40, w: 320, h: 180 });
+  commitStateChangesToLocalStorage(); closeAddBlockMenuModal(); executeInterfaceRenderingPipeline();
+}
+
+function deleteTargetWorkspaceBlockNode(id) {
+  appWorkspaceState.blocks = appWorkspaceState.blocks.filter(b => b.id !== id);
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function resetCanvasLayoutBlocks() {
+  if(confirm("Restore default layout settings?")) {
+    appWorkspaceState.categories = { ...DEFAULT_SYSTEM_CATEGORIES };
+    appWorkspaceState.blocks = [ ...PRESET_WORKSPACE_BLOCKS ];
+    commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+  }
+}
+
+function submitLoggedTransactionForm() {
+  const descVal = document.getElementById('tx-form-desc').value.trim();
+  const amtVal = parseFloat(document.getElementById('tx-form-amount').value);
+  if(!descVal || isNaN(amtVal)) return;
+
+  appWorkspaceState.transactions.unshift({ date: new Date().toISOString().split('T')[0], desc: descVal, category: document.getElementById('tx-form-category').value, type: document.getElementById('tx-form-type').value, amount: amtVal });
+  document.getElementById('tx-form-desc').value = ''; document.getElementById('tx-form-amount').value = '';
+  commitStateChangesToLocalStorage(); closeTransactionFormModal(); executeInterfaceRenderingPipeline();
+}
+
+function executeMockOcrParsingAction(ref) {
+  if(!ref.files || !ref.files[0]) return;
+  const cat = document.getElementById('upload-matrix-selector').value;
+  document.getElementById('ocr-feedback-toast-panel').style.display = 'block';
+  document.getElementById('ocr-feedback-toast-panel').innerHTML = `<strong>⚡ Scanner Tool:</strong> Processed receipt entry value matching <strong>RM 142.80</strong>.`;
+
+  appWorkspaceState.transactions.unshift({ date: new Date().toISOString().split('T')[0], desc: "OCR Statement Captured Receipt", category: cat, type: "Debit Outflow", amount: 142.80 });
+  commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
+}
+
+function switchViewTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active-tab'));
+  document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`view-${id}`).classList.add('active-tab');
+  document.getElementById(`nav-${id}`).classList.add('active');
+}
+
+function openAddBlockMenuModal() { document.getElementById('modal-add-block-overlay').style.display = 'flex'; }
+function closeAddBlockMenuModal() { document.getElementById('modal-add-block-overlay').style.display = 'none'; }
+function openTransactionFormModal() { document.getElementById('modal-transaction-overlay').style.display = 'flex'; }
+function closeTransactionFormModal() { document.getElementById('modal-transaction-overlay').style.display = 'none'; }
+</script>
+</body>
+</html>
