@@ -3,55 +3,54 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Finlo Engine — Target Managed Dashboard</title>
+<title>Finlo Engine — Premium Managed Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
 
 <style>
 :root {
-  --teal:       #1D9E75;
-  --teal-lt:    #EBF9F4;
-  --teal-dk:    #0F6E56;
-  --purple:     #6C5CE7;
-  --purple-lt:  #F1EFFF;
-  --purple-dk:  #4A3CC0;
-  --amber:      #F59E0B;
-  --amber-lt:   #FEF8E7;
-  --amber-dk:   #B45309;
-  --red:        #EF4444;
-  --red-lt:     #FEEFEE;
+  /* Ultra-Modern Color Palette: Deep Teal, Electric Lavender, Mint Glow & Slate Noir */
+  --teal-primary: #0F766E;     /* Deep Rich Teal base */
+  --teal-accent:  #14B8A6;     /* Vibrant Teal Spark */
+  --teal-glow:    #F0FDFA;     /* Soft Mint/Teal tint background */
+  --lavender:     #8B5CF6;     /* Modern Electric Lavender */
+  --lavender-lt:  #F5F3FF;     /* Soft Lavender tint */
+  --slate-dark:   #0F172A;     /* Deep Premium Charcoal/Midnight */
+  --slate-subtle: #475569;     /* Cool Slate grey text */
+  --border-light: rgba(15, 118, 110, 0.08); /* Sophisticated Teal-bound borders */
   
-  --bg:         #FAF8F5; 
-  --surface:    #FFFFFF;
-  --sidebar-bg: #0E121A; 
-  --sidebar-hover: #191F2D;
-  --border:     rgba(14, 16, 19, 0.06);
-  --border-dark: rgba(255, 255, 255, 0.08);
+  --amber:        #F59E0B;
+  --red-alert:    #EF4444;
+  --red-bg:       #FEF2F2;
   
-  --text-dark:  #12151C;
-  --text-grey:  #5E6573;
-  --text-light: #9AA2B1;
+  --bg:           #F8FAFC;     /* Clean Apple-esque premium backdrop */
+  --surface:      #FFFFFF;
+  --sidebar-bg:   #0B0F19;     /* Deep space black sidebar */
+  --sidebar-item: #1E293B;
   
-  --radius-lg:  20px;
-  --radius-md:  12px;
-  --radius-sm:  8px;
-  --sidebar-w:  290px;
+  --radius-xl:    24px;
+  --radius-lg:    16px;
+  --radius-md:    12px;
+  --radius-sm:    6px;
+  --sidebar-w:    295px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--bg);
-  color: var(--text-dark);
+  background-image: radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.04) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.03) 0px, transparent 50%);
+  color: var(--slate-dark);
   display: flex;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* ════════════════════ FIXED LEFT SIDEBAR LAYOUT ════════════════════ */
+/* ════════════════════ PREMIUM MINIMAL SIDEBAR ════════════════════ */
 .sidebar {
   width: var(--sidebar-w);
   background: var(--sidebar-bg);
@@ -61,109 +60,110 @@ body {
   position: fixed;
   top: 0; bottom: 0; left: 0;
   z-index: 200;
-  padding: 40px 24px;
-  border-right: 1px solid var(--border-dark);
+  padding: 44px 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .brand-box {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 40px;
+  gap: 14px;
+  margin-bottom: 44px;
 }
 .brand-icon {
-  width: 36px; height: 36px;
-  background: var(--teal);
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--teal-primary) 0%, var(--teal-accent) 100%);
   border-radius: var(--radius-md);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 12px rgba(29, 158, 117, 0.3);
+  box-shadow: 0 8px 20px rgba(20, 184, 166, 0.25);
 }
-.brand-icon i { color: #fff; font-size: 18px; }
+.brand-icon i { color: #fff; font-size: 20px; }
 
 .editable-title-wrapper {
   display: flex; align-items: center; gap: 6px; cursor: pointer; width: 100%;
 }
 .brand-text {
-  font-size: 20px; font-weight: 800; color: #FAF8F5; outline: none;
+  font-size: 21px; font-weight: 800; color: #F8FAFC; letter-spacing: -0.5px; outline: none;
   border-bottom: 1px dashed transparent; transition: all 0.2s;
   overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
-.brand-text:focus { border-bottom-color: var(--teal); background: rgba(255,255,255,0.05); }
-.brand-edit-icon { font-size: 12px; color: var(--text-light); opacity: 0.4; }
-.editable-title-wrapper:hover .brand-edit-icon { opacity: 1; color: var(--teal); }
+.brand-text:focus { border-bottom-color: var(--teal-accent); background: rgba(255,255,255,0.04); }
+.brand-edit-icon { font-size: 13px; color: var(--slate-subtle); opacity: 0.5; }
+.editable-title-wrapper:hover .brand-edit-icon { opacity: 1; color: var(--teal-accent); }
 
-.sidebar-links { display: flex; flex-direction: column; gap: 6px; }
+.sidebar-links { display: flex; flex-direction: column; gap: 8px; }
 .menu-btn {
-  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
-  color: #A3A8B4; text-decoration: none; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  color: #94A3B8; text-decoration: none; font-size: 14px; font-weight: 600;
   border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;
 }
-.menu-btn:hover, .menu-btn.active { color: #FAF8F5; }
+.menu-btn:hover, .menu-btn.active { color: #FFFFFF; }
 .menu-btn.active {
-  background: linear-gradient(135deg, var(--sidebar-hover) 0%, rgba(29,158,117,0.08) 100%);
-  color: #FFFFFF; box-shadow: inset 4px 0 0 var(--teal);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 4px 0 0 var(--teal-accent);
 }
-.menu-btn.active i { color: var(--teal); }
+.menu-btn.active i { color: var(--teal-accent); }
 
 .editable-link-text { outline: none; border-bottom: 1px dashed transparent; padding-right: 4px; }
-.editable-link-text:focus { border-bottom-color: var(--teal); background: rgba(255,255,255,0.08); border-radius: 4px; }
+.editable-link-text:focus { border-bottom-color: var(--teal-accent); background: rgba(255,255,255,0.06); border-radius: 4px; }
 
-/* ════════════════════ MAIN CANVAS AREA ════════════════════ */
+/* ════════════════════ WORKSPACE MAIN SHEET ════════════════════ */
 .workspace {
   margin-left: var(--sidebar-w);
   flex: 1;
-  padding: 40px 48px;
+  padding: 44px 48px;
   width: calc(100% - var(--sidebar-w));
 }
 .header-area {
   display: flex; justify-content: space-between; align-items: center;
-  border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 32px;
+  border-bottom: 1px solid rgba(15, 118, 110, 0.05); padding-bottom: 28px; margin-bottom: 36px;
 }
-.greeting-title { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; color: var(--text-dark); }
-.greeting-sub { font-size: 13px; color: var(--text-grey); margin-top: 2px; }
+.greeting-title { font-size: 32px; font-weight: 800; letter-spacing: -0.8px; color: var(--slate-dark); }
+.greeting-sub { font-size: 14px; color: var(--slate-subtle); margin-top: 4px; font-weight: 500; }
 .top-action-bar { display: flex; gap: 12px; }
 
 .app-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 20px; font-size: 13px; font-weight: 700;
+  padding: 11px 22px; font-size: 13px; font-weight: 700;
   border-radius: var(--radius-md); cursor: pointer; border: 1px solid transparent;
-  font-family: inherit; transition: all 0.2s ease;
+  font-family: inherit; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.btn-teal { background: var(--teal); color: #fff; }
-.btn-teal:hover { background: var(--teal-dk); }
-.btn-purple { background: var(--purple); color: #fff; }
-.btn-purple:hover { background: var(--purple-dk); }
-.btn-outline { background: var(--surface); border-color: rgba(14,16,19,0.1); color: var(--text-dark); }
-.btn-outline:hover { background: var(--bg); }
+.btn-teal { background: var(--teal-primary); color: #fff; box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15); }
+.btn-teal:hover { background: #0D665F; transform: translateY(-1px); }
+.btn-purple { background: var(--lavender); color: #fff; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15); }
+.btn-purple:hover { background: #7C3AED; transform: translateY(-1px); }
+.btn-outline { background: var(--surface); border-color: rgba(15, 118, 110, 0.12); color: var(--slate-dark); }
+.btn-outline:hover { background: var(--bg); color: var(--teal-primary); }
 
-/* ════════════════════ DASHBOARD OMNI-SNAP BENTO CANVAS ════════════════════ */
+/* ════════════════════ DESIGN ENGINE BENTO CANVAS BLOCK GRID ════════════════════ */
 .bento-canvas-container {
   position: relative;
   width: 100%;
   min-height: 1100px;
-  background: rgba(14, 16, 19, 0.01);
-  border-radius: var(--radius-lg);
-  border: 1px dashed rgba(14, 16, 19, 0.05);
 }
 
 .grid-block {
   position: absolute;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(15, 118, 110, 0.06);
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 30px rgba(14,16,19,0.03);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.02);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
   touch-action: none;
-  transition: transform 0.25s cubic-bezier(0.2, 1, 0.2, 1), width 0.2s ease, height 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, width 0.15s ease, height 0.15s ease;
+}
+.grid-block:hover {
+  box-shadow: 0 12px 36px rgba(15, 118, 110, 0.05);
 }
 
 .grid-block.is-dragging {
   transition: none !important;
   z-index: 500;
-  box-shadow: 0 20px 45px rgba(14,16,19,0.12);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  border-color: rgba(20, 184, 166, 0.3);
 }
 .grid-block.is-resizing {
   transition: none !important;
@@ -171,23 +171,22 @@ body {
 }
 
 .block-drag-handle {
-  padding: 14px 20px;
-  background: #FFFDFB;
-  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  background: linear-gradient(to bottom, #FFFFFF, #FCFDFD);
+  border-bottom: 1px solid rgba(15, 118, 110, 0.04);
   cursor: move;
   display: flex;
   justify-content: space-between;
   align-items: center;
   user-select: none;
 }
-.block-title-text { font-size: 14px; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.block-title-text { font-size: 13px; font-weight: 700; color: var(--slate-dark); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
 .block-control-actions { display: flex; gap: 8px; align-items: center; }
-.block-action-icon { font-size: 16px; color: var(--text-light); cursor: pointer; transition: color 0.2s; }
-.block-action-icon:hover { color: var(--red); }
+.block-action-icon { font-size: 15px; color: #94A3B8; cursor: pointer; transition: color 0.2s; }
+.block-action-icon:hover { color: var(--red-alert); }
 
-/* STRICT COMPACT DASHBOARD ENGINE BLOCK (NO SCROLLING) */
 .block-body-content {
-  padding: 18px 22px;
+  padding: 20px 24px;
   flex: 1;
   overflow: hidden; 
   position: relative;
@@ -199,72 +198,82 @@ body {
 .block-resize-grabber {
   position: absolute;
   bottom: 0; right: 0;
-  width: 16px; height: 16px;
+  width: 14px; height: 14px;
   cursor: se-resize;
-  background: linear-gradient(135deg, transparent 50%, var(--text-light) 50%);
+  background: linear-gradient(135deg, transparent 50%, #CBD5E1 50%);
   border-bottom-right-radius: var(--radius-lg);
-  opacity: 0.3;
+  opacity: 0.6;
 }
 
-/* DATA VISUAL METRICS */
-.metric-amount { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace; margin: 4px 0; white-space: nowrap; }
-.metric-label { font-size: 11px; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+/* VISUAL METRICS FRAMEWORKS */
+.metric-amount { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: 'JetBrains Mono', monospace; margin: 4px 0; color: var(--slate-dark); }
+.metric-label { font-size: 11px; font-weight: 700; color: var(--slate-subtle); text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* REVISED TARGET BUDGET INLINE EDIT LABELS MATRIX */
+/* INLINE LUXURY BUDGET MATRICES EDIT FIELDS */
 .budget-pool-edit-row {
-  display: flex; align-items: center; justify-content: space-between; margin: 4px 0; gap: 8px;
+  display: flex; align-items: center; justify-content: space-between; margin: 5px 0; gap: 10px;
 }
-.budget-pool-label { font-size: 12px; font-weight: 700; color: var(--text-grey); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.budget-pool-label { font-size: 12px; font-weight: 600; color: var(--slate-dark); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .budget-pool-input-box {
-  display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); padding: 4px 8px; border-radius: var(--radius-sm); max-width: 120px;
+  display: flex; align-items: center; background: #F1F5F9; border: 1px solid transparent; padding: 4px 8px; border-radius: var(--radius-sm); max-width: 105px; transition: all 0.2s;
 }
-.budget-pool-input-box span { font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 700; color: var(--text-grey); margin-right: 2px; }
+.budget-pool-input-box:focus-within { border-color: var(--teal-accent); background: #FFFFFF; box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1); }
+.budget-pool-input-box span { font-family: 'JetBrains Mono'; font-size: 11px; font-weight: 700; color: var(--slate-subtle); margin-right: 2px; }
 .budget-inline-field {
-  font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 700; color: var(--text-dark); border: none; background: transparent; outline: none; width: 100%; text-align: right;
+  font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 700; color: var(--slate-dark); border: none; background: transparent; outline: none; width: 100%; text-align: right;
 }
 
-/* DATA TABLES MATRIX GRID */
+/* PREMIUM UTILITY BADGES */
+.percentage-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; display: inline-flex; align-items: center;
+}
+.badge-teal { background: var(--teal-glow); color: var(--teal-primary); }
+.badge-lavender { background: var(--lavender-lt); color: var(--lavender); }
+.badge-red { background: var(--red-bg); color: var(--red-alert); }
+
+/* MODERN DATA ARRAYS TABLES */
 .data-table { width: 100%; border-collapse: collapse; text-align: left; }
 .data-table th {
-  padding: 8px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
-  color: var(--text-light); font-weight: 700; border-bottom: 1px solid var(--border);
+  padding: 8px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--slate-subtle); font-weight: 700; border-bottom: 1px solid rgba(15, 118, 110, 0.05);
 }
-.data-table td { padding: 10px 10px; font-size: 12px; border-bottom: 1px solid var(--border); color: var(--text-dark); white-space: nowrap; }
-.category-pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.data-table td { padding: 11px 8px; font-size: 13px; border-bottom: 1px solid rgba(15, 118, 110, 0.03); color: var(--slate-dark); white-space: nowrap; }
+.category-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
 
-/* PROGRESS MATRICES */
-.progress-labels { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
-.bar-background { height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; margin-bottom: 14px; border: 1px solid var(--border); }
-.bar-fill { height: 100%; width: 0%; border-radius: 4px; transition: width 0.4s ease; }
+/* RE-ENGINEERED PERFORMANCE STATS SLIDERS Matrix */
+.progress-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.bar-background { height: 7px; background: #E2E8F0; border-radius: 10px; overflow: hidden; margin-bottom: 16px; position: relative; }
+.bar-fill { height: 100%; width: 0%; border-radius: 10px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-/* STATIC FORMS MODAL WINDOW SHEETS */
+/* FORM MODALS MODAL HOOD SHEETS */
 .modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(18, 21, 26, 0.25); backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(8px);
   display: none; align-items: center; justify-content: center; z-index: 1000;
 }
 .modal-box {
-  background: var(--surface); border: 1px solid var(--border);
-  width: 100%; max-width: 460px; padding: 32px; border-radius: var(--radius-lg); box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  background: var(--surface); border: 1px solid rgba(15, 118, 110, 0.1);
+  width: 100%; max-width: 470px; padding: 36px; border-radius: var(--radius-xl); box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
 }
-.modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.input-group { margin-bottom: 16px; }
-.input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--text-grey); }
-.simple-input, .simple-select, .simple-textarea {
-  width: 100%; padding: 12px; border: 1px solid rgba(14,16,19,0.1); background: var(--bg);
-  font-family: inherit; font-size: 13px; border-radius: var(--radius-md); outline: none;
+.modal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.input-group { margin-bottom: 18px; }
+.input-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: var(--slate-subtle); letter-spacing: 0.5px; }
+.simple-input, .simple-select {
+  width: 100%; padding: 12px 14px; border: 1px solid #E2E8F0; background: #F8FAFC;
+  font-family: inherit; font-size: 13px; border-radius: var(--radius-md); outline: none; transition: all 0.2s;
 }
-.simple-input:focus, .simple-select:focus, .simple-textarea:focus { border-color: var(--teal); background: #fff; }
+.simple-input:focus, .simple-select:focus { border-color: var(--teal-accent); background: #fff; box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.08); }
 
 .tab-panel { display: none; }
 .tab-panel.active-tab { display: block; }
 
 .upload-dropzone {
-  border: 2px dashed rgba(29, 158, 117, 0.25); background: var(--teal-lt);
-  border-radius: var(--radius-lg); padding: 40px; text-align: center; cursor: pointer;
+  border: 2px dashed rgba(20, 184, 166, 0.3); background: var(--teal-glow);
+  border-radius: var(--radius-xl); padding: 44px; text-align: center; cursor: pointer; transition: all 0.2s;
 }
-.upload-dropzone i { font-size: 40px; color: var(--teal); margin-bottom: 12px; }
-.toast-success { background: var(--teal-lt); color: var(--teal-dk); padding: 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; margin-top: 14px; display: none; border-left: 4px solid var(--teal); }
+.upload-dropzone:hover { border-color: var(--teal-accent); background: #F0FDF4; }
+.upload-dropzone i { font-size: 44px; color: var(--teal-primary); margin-bottom: 14px; }
+.toast-success { background: var(--teal-glow); color: var(--teal-primary); padding: 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; margin-top: 14px; display: none; border-left: 4px solid var(--teal-accent); }
 </style>
 </head>
 <body>
@@ -293,12 +302,11 @@ body {
     </div>
   </div>
 
-  <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--border-dark);">
-    <p style="font-size:11px; text-transform:uppercase; color:var(--text-light); font-weight:700; margin-bottom:8px;">Add Matrix Category</p>
+  <div style="margin-top:auto; padding-top:24px; border-top:1px solid rgba(255,255,255,0.05);">
+    <p style="font-size:11px; text-transform:uppercase; color:#64748B; font-weight:700; margin-bottom:8px; letter-spacing:0.5px;">Add Matrix Category</p>
     <div style="display:flex; gap:6px;">
-      <input type="text" id="sidebar-new-cat-input" class="simple-input" placeholder="e.g., Electronics" style="background:rgba(255,255,255,0.06); border:none; color:#fff; padding:8px 12px; font-size:12px;"/>
-      <input type="hidden" id="state-fallback-verification-flag" value="active-bundle-verified"/>
-      <button onclick="addCustomCategoryFromSidebar()" style="background:var(--teal); border:none; color:#fff; padding:0 12px; border-radius:var(--radius-md); cursor:pointer;"><i class="ti ti-plus"></i></button>
+      <input type="text" id="sidebar-new-cat-input" class="simple-input" placeholder="e.g., Luxury" style="background:rgba(255,255,255,0.04); border:none; color:#fff; padding:8px 12px; font-size:12px;"/>
+      <button onclick="addCustomCategoryFromSidebar()" style="background:var(--teal-primary); border:none; color:#fff; padding:0 12px; border-radius:var(--radius-md); cursor:pointer;"><i class="ti ti-plus"></i></button>
     </div>
   </div>
 </aside>
@@ -311,9 +319,9 @@ body {
       <p class="greeting-sub" id="live-date-string">System Active Engine · Friday, May 22, 2026</p>
     </div>
     <div class="top-action-bar">
-      <button class="app-btn btn-purple" onclick="openAddBlockMenuModal()"><i class="ti ti-circle-plus"></i> Add Custom Block (+)</button>
-      <button class="app-btn btn-teal" onclick="openTransactionFormModal()"><i class="ti ti-plus"></i> Log Transaction</button>
-      <button class="app-btn btn-outline" onclick="resetCanvasLayoutBlocks()" title="Reset workspace blocks layouts back to factory presets"><i class="ti ti-refresh"></i> Reset Canvas</button>
+      <button class="app-btn btn-purple" onclick="openAddBlockMenuModal()"><i class="ti ti-circle-plus"></i> Add Block</button>
+      <button class="app-btn btn-teal" onclick="openTransactionFormModal()"><i class="ti ti-plus"></i> Log Entry</button>
+      <button class="app-btn btn-outline" onclick="resetCanvasLayoutBlocks()" title="Reset layout presets"><i class="ti ti-refresh"></i> Reset Layout</button>
     </div>
   </header>
 
@@ -322,43 +330,43 @@ body {
   </div>
 
   <div id="view-categories" class="tab-panel">
-    <div style="background:var(--surface); padding:32px; border-radius:var(--radius-lg); border:1px solid var(--border); max-width:800px;">
-      <h3 style="font-size:20px; font-weight:800; margin-bottom:8px;">Create & Adjust Matrix Category Parameters</h3>
-      <p style="color:var(--text-grey); font-size:14px; margin-bottom:24px;">Setup limits and color profiles below to instantly bind transaction logs to dynamic target meters.</p>
+    <div style="background:var(--surface); padding:36px; border-radius:var(--radius-xl); border:1px solid rgba(15,118,110,0.06); max-width:820px;">
+      <h3 style="font-size:22px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">Adjust Matrix Allocation Parameters</h3>
+      <p style="color:var(--slate-subtle); font-size:14px; margin-bottom:28px;">Setup maximum capacity parameters to instantly re-bind analytical charts.</p>
       
       <div style="display:grid; grid-template-columns:2fr 1fr 1fr 100px; gap:12px; margin-bottom:20px;">
         <input type="text" id="matrix-cat-name" class="simple-input" placeholder="Category Name"/>
-        <input type="number" id="matrix-cat-budget" class="simple-input" placeholder="Budget Cap (RM)" step="10"/>
+        <input type="number" id="matrix-cat-budget" class="simple-input" placeholder="Limit (RM)" step="10"/>
         <select id="matrix-cat-color" class="simple-select">
-          <option value="var(--teal)">Teal Matrix Accent</option>
-          <option value="var(--purple)">Purple Highlight</option>
-          <option value="var(--amber)">Amber Warning</option>
-          <option value="var(--text-grey)">Slate Charcoal</option>
+          <option value="var(--teal-primary)">Deep Teal</option>
+          <option value="var(--lavender)">Electric Lavender</option>
+          <option value="var(--amber)">Warm Amber</option>
+          <option value="var(--slate-subtle)">Charcoal Slate</option>
         </select>
         <button class="app-btn btn-teal" onclick="submitMatrixCategorySetupForm()" style="justify-content:center;">Create</button>
       </div>
-      <div id="matrix-category-full-list" style="margin-top:32px;"></div>
+      <div id="matrix-category-full-list" style="margin-top:36px;"></div>
     </div>
   </div>
 
   <div id="view-upload" class="tab-panel">
-    <div style="background:var(--surface); padding:48px; border-radius:var(--radius-lg); border:1px solid var(--border); max-width:700px; margin:0 auto; text-align:center;">
-      <i class="ti ti-scan-eye" style="font-size:48px; color:var(--purple); margin-bottom:16px; display:inline-block;"></i>
-      <h2 style="font-size:24px; font-weight:800; margin-bottom:8px;">Ingest Statements & Screenshot Slips</h2>
-      <p style="color:var(--text-grey); font-size:14px; max-width:500px; margin:0 auto 24px; line-height:1.6;">
-        Upload digital PDF sheets or bank statements. The interface extracts parsed records and assigns them into selected matrices automatically.
+    <div style="background:var(--surface); padding:52px; border-radius:var(--radius-xl); border:1px solid rgba(15,118,110,0.06); max-width:720px; margin:0 auto; text-align:center;">
+      <i class="ti ti-scan-eye" style="font-size:52px; color:var(--lavender); margin-bottom:18px; display:inline-block;"></i>
+      <h2 style="font-size:26px; font-weight:800; margin-bottom:8px; letter-spacing:-0.5px;">Ingest Statements & Invoices</h2>
+      <p style="color:var(--slate-subtle); font-size:14px; max-width:520px; margin:0 auto 28px; line-height:1.6;">
+        Upload statement files or receipt images. The tracking framework parses amounts into active categories dynamically.
       </p>
 
-      <div class="input-group" style="max-width:320px; margin:0 auto 20px; text-align:left;">
-        <label>Target Spending Matrix Binder Category</label>
+      <div class="input-group" style="max-width:320px; margin:0 auto 24px; text-align:left;">
+        <label>Target Binder Category</label>
         <select id="upload-matrix-selector" class="simple-select"></select>
       </div>
 
       <input type="file" id="hidden-file-input-node" style="display:none;" onchange="executeMockOcrParsingAction(this)"/>
       <div class="upload-dropzone" onclick="document.getElementById('hidden-file-input-node').click()">
         <i class="ti ti-cloud-upload"></i>
-        <p style="font-weight:700; font-size:15px; color:var(--text-dark); margin-bottom:4px;">Drag and drop or browse local desktop files</p>
-        <p style="font-size:12px; color:var(--text-light);">Supports JPEG, PNG, or text PDFs up to 14MB</p>
+        <p style="font-weight:700; font-size:15px; color:var(--slate-dark); margin-bottom:4px;">Drop statement sheets or bank screenshots</p>
+        <p style="font-size:12px; color:var(--slate-subtle);">Supports PNG, JPEG, or PDF documents up to 15MB</p>
       </div>
       <div class="toast-success" id="ocr-feedback-toast-panel"></div>
     </div>
@@ -369,14 +377,14 @@ body {
 <div class="modal-overlay" id="modal-add-block-overlay">
   <div class="modal-box">
     <div class="modal-top">
-      <h3 style="font-size:18px; font-weight:800;"><i class="ti ti-square-plus" style="color:var(--purple)"></i> Append Custom Block Choice</h3>
-      <i class="ti ti-x" style="cursor:pointer; font-size:20px; color:var(--text-light);" onclick="closeAddBlockMenuModal()"></i>
+      <h3 style="font-size:19px; font-weight:800;"><i class="ti ti-square-plus" style="color:var(--lavender)"></i> Add Metric Block</h3>
+      <i class="ti ti-x" style="cursor:pointer; font-size:20px; color:var(--slate-subtle);" onclick="closeAddBlockMenuModal()"></i>
     </div>
     <div style="display:flex; flex-direction:column; gap:10px;">
-      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('MetricCard')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-chart-bar" style="color:var(--teal)"></i> <strong>Financial Metric Counter Block</strong></button>
-      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('TransactionTable')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-table" style="color:var(--purple)"></i> <strong>Data Ledger Table Listing Block</strong></button>
-      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('Notebook')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-note" style="color:var(--amber)"></i> <strong>Editable Rich-Text Workspace Pad</strong></button>
-      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('LineChartBlock')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-chart-line" style="color:var(--purple)"></i> <strong>Timeline Spending Chart Block</strong></button>
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('MetricCard')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-chart-bar" style="color:var(--teal-primary)"></i> <strong>Financial Counter Metric Block</strong></button>
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('TransactionTable')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-table" style="color:var(--lavender)"></i> <strong>Ledger Register Table Block</strong></button>
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('Notebook')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-note" style="color:var(--amber)"></i> <strong>Rich-Text Strategy Scratchpad</strong></button>
+      <button class="app-btn btn-outline" onclick="generateCustomBlockOnCanvas('LineChartBlock')" style="justify-content:flex-start; padding:14px;"><i class="ti ti-chart-line" style="color:var(--lavender)"></i> <strong>Timeline Spend Graph Block</strong></button>
     </div>
   </div>
 </div>
@@ -384,31 +392,31 @@ body {
 <div class="modal-overlay" id="modal-transaction-overlay">
   <div class="modal-box">
     <div class="modal-top">
-      <h3 style="font-size:18px; font-weight:800;">Log Ledger Transaction Record</h3>
-      <i class="ti ti-x" style="cursor:pointer; font-size:20px; color:var(--text-light);" onclick="closeTransactionFormModal()"></i>
+      <h3 style="font-size:19px; font-weight:800;">Log Ledger Item Entry</h3>
+      <i class="ti ti-x" style="cursor:pointer; font-size:20px; color:var(--slate-subtle);" onclick="closeTransactionFormModal()"></i>
     </div>
     <div class="input-group">
-      <label>Store Entity Description Name</label>
-      <input type="text" id="tx-form-desc" class="simple-input" placeholder="e.g., Jaya Grocer Supermarket Checkout"/>
+      <label>Store / Transaction Description Entity</label>
+      <input type="text" id="tx-form-desc" class="simple-input" placeholder="e.g., Jaya Grocer Checkout Link"/>
     </div>
     <div class="input-group">
-      <label>Spending Category Matrix Match</label>
+      <label>Spending Target Category</label>
       <select id="tx-form-category" class="simple-select"></select>
     </div>
     <div class="input-group">
-      <label>Transaction Inflow/Outflow Framework</label>
+      <label>Transaction Allocation Direction</label>
       <select id="tx-form-type" class="simple-select">
         <option value="Debit Outflow">Expense Outflow (Money Spent)</option>
         <option value="Credit Inflow">Income Inflow (Capital Inbound)</option>
       </select>
     </div>
     <div class="input-group">
-      <label>Amount Specification Value (RM)</label>
+      <label>Value Metric Amount Specified (RM)</label>
       <input type="number" id="tx-form-amount" class="simple-input" placeholder="0.00" step="0.01"/>
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+    <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:28px;">
       <button class="app-btn btn-outline" onclick="closeTransactionFormModal()">Discard Form</button>
-      <button class="app-btn btn-teal" onclick="submitLoggedTransactionForm()">Commit Entry Log</button>
+      <button class="app-btn btn-teal" onclick="submitLoggedTransactionForm()">Commit Ledger Log</button>
     </div>
   </div>
 </div>
@@ -417,10 +425,10 @@ body {
 const GRID_SNAP_RESOLUTION_PX = 20;
 
 const DEFAULT_SYSTEM_CATEGORIES = {
-  "Food & Dining": { budget: 1500.00, color: "var(--teal)" },
-  "Rent & Housing": { budget: 3500.00, color: "var(--purple)" },
+  "Food & Dining": { budget: 1500.00, color: "var(--teal-primary)" },
+  "Rent & Housing": { budget: 3500.00, color: "var(--lavender)" },
   "Bills & Utilities": { budget: 1000.00, color: "var(--amber)" },
-  "Investments": { budget: 2000.00, color: "var(--purple)" }
+  "Investments": { budget: 2000.00, color: "var(--teal-accent)" }
 };
 
 const DEFAULT_TRANSACTION_ITEMS = [
@@ -431,13 +439,13 @@ const DEFAULT_TRANSACTION_ITEMS = [
 ];
 
 const PRESET_WORKSPACE_BLOCKS = [
-  { id: "block-budget-cap", type: "MetricCard", title: "Target Budget Pools", x: 20, y: 20, w: 280, h: 220, metricType: "budget" },
-  { id: "block-spent-counter", type: "MetricCard", title: "Total Tracked Outflows", x: 320, y: 20, w: 280, h: 220, metricType: "spent" },
-  { id: "block-remaining-pool", type: "MetricCard", title: "Remaining Cash Pool", x: 620, y: 20, w: 320, h: 220, metricType: "remaining" },
-  { id: "block-main-trendline", type: "LineChartBlock", title: "Monthly Expense Outflows Trend", x: 20, y: 260, w: 580, h: 320 },
-  { id: "block-workspace-scratchpad", type: "Notebook", title: "Strategic Notes Pad", x: 620, y: 260, w: 320, h: 320, content: "Deployment rules:\n- Verify transport receipts logs\n- Target weekly automate ETF matrix levels" },
-  { id: "block-tx-ledger", type: "TransactionTable", title: "Dynamic Ledger Transactions Registry", x: 20, y: 600, w: 580, h: 360 },
-  { id: "block-bar-distribution", type: "BarChartBlock", title: "Categorized Outflows Weekly Breakdown", x: 620, y: 600, w: 320, h: 360 }
+  { id: "block-budget-cap", type: "MetricCard", title: "Target Budget Pools", x: 20, y: 20, w: 310, h: 240, metricType: "budget" },
+  { id: "block-spent-counter", type: "MetricCard", title: "Total Tracked Outflows", x: 350, y: 20, w: 290, h: 240, metricType: "spent" },
+  { id: "block-remaining-pool", type: "MetricCard", title: "Remaining Cash Pool", x: 660, y: 20, w: 290, h: 240, metricType: "remaining" },
+  { id: "block-main-trendline", type: "LineChartBlock", title: "Monthly Expense Outflows Trend", x: 20, y: 280, w: 620, h: 320 },
+  { id: "block-workspace-scratchpad", type: "Notebook", title: "Strategic Allocation Notes", x: 660, y: 280, w: 290, h: 320, content: "Deployment Rules:\n- Cross-check automated monthly ETF levels\n- Append scanned receipts into selected spending matrices instantly" },
+  { id: "block-tx-ledger", type: "TransactionTable", title: "Real-Time Ledger Transaction Registry", x: 20, y: 620, w: 620, h: 360 },
+  { id: "block-bar-distribution", type: "BarChartBlock", title: "Categorized Allocation Distribution Matrix", x: 660, y: 620, w: 290, h: 360 }
 ];
 
 let appWorkspaceState = { categories: {}, transactions: [], blocks: [] };
@@ -450,7 +458,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let loadedFromCache = false;
   try {
-    const cachedData = localStorage.getItem('finlo_interactive_state_bundle_v8');
+    const cachedData = localStorage.getItem('finlo_interactive_state_bundle_v9');
     if (cachedData) {
       const parsedData = JSON.parse(cachedData);
       if (parsedData && parsedData.blocks && parsedData.blocks.length > 0) {
@@ -459,7 +467,7 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
   } catch(e) {
-    console.warn("Cache reset active");
+    console.warn("State bundle conflict handled.");
   }
 
   if (!loadedFromCache) {
@@ -487,7 +495,7 @@ function handleWorkspaceTitleUpdate(fullTitleText) {
 }
 
 function commitStateChangesToLocalStorage() {
-  localStorage.setItem('finlo_interactive_state_bundle_v8', JSON.stringify(appWorkspaceState));
+  localStorage.setItem('finlo_interactive_state_bundle_v9', JSON.stringify(appWorkspaceState));
 }
 
 function saveCustomWorkspaceName() {
@@ -538,14 +546,29 @@ function recalculateGlobalSummaryPoolDisplays() {
   
   const remainingCashAmountValue = targetBudgetAggregateTotal - totalSpentAggregate;
 
+  // Refresh remaining block indicators safely
   const remainingValNode = document.getElementById('value-display-block-remaining-pool');
   if (remainingValNode) {
     remainingValNode.innerText = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
     const parentBlockNode = remainingValNode.closest('.grid-block');
     if (parentBlockNode) {
-      parentBlockNode.style.borderLeft = remainingCashAmountValue < 0 ? "4px solid var(--red)" : "4px solid var(--teal)";
+      parentBlockNode.style.borderTop = remainingCashAmountValue < 0 ? "4px solid var(--red-alert)" : "4px solid var(--teal-accent)";
     }
   }
+
+  // Refresh dynamic usage badges if nodes exist
+  Object.keys(appWorkspaceState.categories).forEach(catKey => {
+    const badgeNode = document.getElementById(`badge-pct-${catKey.replace(/\s+/g, '-')}`);
+    if(badgeNode) {
+      let spent = 0; 
+      appWorkspaceState.transactions.forEach(t => { if(t.category === catKey && t.type === 'Debit Outflow') spent += t.amount; });
+      let budget = appWorkspaceState.categories[catKey].budget;
+      let pct = budget > 0 ? ((spent / budget) * 100).toFixed(0) : 0;
+      badgeNode.innerText = `${pct}% used`;
+      badgeNode.className = `percentage-badge ${pct > 95 ? 'badge-red' : pct > 60 ? 'badge-lavender' : 'badge-teal'}`;
+    }
+  });
+
   renderSpendingCategoriesMatrixTab();
 }
 
@@ -558,7 +581,6 @@ function renderModularBentoWorkspaceBlocks() {
   });
   workspaceContainerCanvas.innerHTML = '';
 
-  // Enforce emergency safety backup arrays if anything drops out of memory
   if(!appWorkspaceState.blocks || appWorkspaceState.blocks.length === 0) {
     appWorkspaceState.blocks = [ ...PRESET_WORKSPACE_BLOCKS ];
   }
@@ -586,65 +608,78 @@ function renderModularBentoWorkspaceBlocks() {
         let inputRowsHtml = '';
         Object.keys(appWorkspaceState.categories).forEach(catKey => {
           const currentBudgetValue = appWorkspaceState.categories[catKey].budget;
+          let spent = 0;
+          appWorkspaceState.transactions.forEach(t => { if(t.category === catKey && t.type === 'Debit Outflow') spent += t.amount; });
+          let pct = currentBudgetValue > 0 ? ((spent / currentBudgetValue) * 100).toFixed(0) : 0;
+          let colorClass = pct > 95 ? 'badge-red' : pct > 60 ? 'badge-lavender' : 'badge-teal';
+
           inputRowsHtml += `
             <div class="budget-pool-edit-row">
               <span class="budget-pool-label">${catKey}</span>
-              <div class="budget-pool-input-box">
-                <span>RM</span>
-                <input type="number" class="budget-inline-field" value="${currentBudgetValue}" step="50" oninput="updateLiveCategoryBudgetAmount('${catKey}', this.value)" />
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span id="badge-pct-${catKey.replace(/\s+/g, '-')}" class="percentage-badge ${colorClass}">${pct}% used</span>
+                <div class="budget-pool-input-box">
+                  <span>RM</span>
+                  <input type="number" class="budget-inline-field" value="${currentBudgetValue}" step="50" oninput="updateLiveCategoryBudgetAmount('${catKey}', this.value)" />
+                </div>
               </div>
             </div>
           `;
         });
 
+        cardWrapperElement.style.borderTop = "4px solid var(--teal-primary)";
         innerContentHtmlNode = `
-          <div class="metric-label" style="margin-bottom: 8px;">${block.title}</div>
-          <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+          <div class="metric-label" style="margin-bottom: 6px;">${block.title}</div>
+          <div style="display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex:1; padding-right:2px;">
             ${inputRowsHtml}
           </div>
         `;
       } else if(block.metricType === 'spent') {
+        let overallPct = totalBudgetAggregate > 0 ? ((totalSpentAggregate / totalBudgetAggregate) * 100).toFixed(0) : 0;
         let numericDisplayResult = `RM ${totalSpentAggregate.toLocaleString('en-US', {minimumFractionDigits:2})}`;
-        cardWrapperElement.style.borderLeft = "4px solid var(--purple)";
+        cardWrapperElement.style.borderTop = "4px solid var(--lavender)";
         innerContentHtmlNode = `
-          <div class="metric-label">${block.title}</div>
+          <div style="display:flex; justify-content:between; align-items:center; margin-bottom:2px;">
+            <div class="metric-label" style="flex:1;">${block.title}</div>
+            <span class="percentage-badge badge-lavender">${overallPct}% overall utilization</span>
+          </div>
           <div class="metric-amount">${numericDisplayResult}</div>
-          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Calculated total outflows.</p>
+          <p style="font-size:12px; color:var(--slate-subtle); font-weight:500;">Aggregated outflows consumed.</p>
         `;
       } else {
         let remainingCashAmountValue = totalBudgetAggregate - totalSpentAggregate;
         let numericDisplayResult = `RM ${remainingCashAmountValue.toLocaleString('en-US', {minimumFractionDigits:2})}`;
-        cardWrapperElement.style.borderLeft = remainingCashAmountValue < 0 ? "4px solid var(--red)" : "4px solid var(--teal)";
+        cardWrapperElement.style.borderTop = remainingCashAmountValue < 0 ? "4px solid var(--red-alert)" : "4px solid var(--teal-accent)";
         innerContentHtmlNode = `
           <div class="metric-label">${block.title}</div>
           <div class="metric-amount" id="value-display-block-remaining-pool">${numericDisplayResult}</div>
-          <p style="font-size:12px; color:var(--text-grey); font-weight:500;">Safe spending margin available.</p>
+          <p style="font-size:12px; color:var(--slate-subtle); font-weight:500;">Safe operational margin remaining.</p>
         `;
       }
     } 
     else if(block.type === 'TransactionTable') {
       let innerRowsDataString = '';
-      appWorkspaceState.transactions.slice(0, 4).forEach(tx => {
+      appWorkspaceState.transactions.slice(0, 5).forEach(tx => {
         innerRowsDataString += `
           <tr>
-            <td style="color:var(--text-grey); font-family:'JetBrains Mono'; font-size:11px;">${tx.date}</td>
-            <td style="font-weight:700; max-width:140px; overflow:hidden; text-overflow:ellipsis;">${tx.desc}</td>
-            <td><span class="category-pill" style="background:var(--teal-lt); color:var(--teal-dk);">${tx.category}</span></td>
-            <td style="text-align:right; font-weight:700;">RM ${tx.amount.toFixed(2)}</td>
+            <td style="color:var(--slate-subtle); font-family:'JetBrains Mono'; font-size:11px;">${tx.date}</td>
+            <td style="font-weight:700; max-width:160px; overflow:hidden; text-overflow:ellipsis;">${tx.desc}</td>
+            <td><span class="category-pill" style="background:var(--teal-glow); color:var(--teal-primary);">${tx.category}</span></td>
+            <td style="text-align:right; font-weight:700; font-family:'JetBrains Mono';">RM ${tx.amount.toFixed(2)}</td>
           </tr>
         `;
       });
       innerContentHtmlNode = `
         <table class="data-table">
-          <thead><tr><th>DATE</th><th>ITEM TARGET</th><th>MATRIX</th><th style="text-align:right;">AMOUNT</th></tr></thead>
-          <tbody>${innerRowsDataString || '<tr><td colspan="4">No entries.</td></tr>'}</tbody>
+          <thead><tr><th>DATE</th><th>ITEM LOGGED</th><th>MATRIX CATEGORY</th><th style="text-align:right;">AMOUNT</th></tr></thead>
+          <tbody>${innerRowsDataString || '<tr><td colspan="4">No entries active.</td></tr>'}</tbody>
         </table>
       `;
     }
     else if(block.type === 'Notebook') {
       innerContentHtmlNode = `
-        <div style="font-size:13px; line-height:1.6; color:var(--text-grey); font-style:italic; padding:4px 0;">
-          ${block.content ? block.content.replace(/\n/g, '<br>') : 'No strategic guidelines initialized.'}
+        <div style="font-size:13px; line-height:1.6; color:var(--slate-subtle); padding:2px 0; overflow-y:auto; flex:1;">
+          ${block.content ? block.content.replace(/\n/g, '<br>') : 'No metrics configured.'}
         </div>
       `;
     }
@@ -654,7 +689,7 @@ function renderModularBentoWorkspaceBlocks() {
 
     cardWrapperElement.innerHTML = `
       <div class="block-drag-handle">
-        <div class="block-title-text"><i class="ti ti-grip-vertical" style="color:var(--text-light); opacity:0.6;"></i> ${block.title}</div>
+        <div class="block-title-text"><i class="ti ti-grip-vertical" style="color:#94A3B8; opacity:0.5;"></i> ${block.title}</div>
         <div class="block-control-actions"><i class="ti ti-trash block-action-icon" onclick="deleteTargetWorkspaceBlockNode('${block.id}')"></i></div>
       </div>
       <div class="block-body-content">${innerContentHtmlNode}</div>
@@ -674,7 +709,7 @@ function renderLineGraphDataChartInstance(blockId) {
     type: 'line',
     data: {
       labels: ['May 01', 'May 08', 'May 15', 'May 22'],
-      datasets: [{ label: 'Outflows', data: [200, 530, 1140, 2321], borderColor: '#6C5CE7', tension: 0.15, fill: false }]
+      datasets: [{ label: 'Outflows', data: [200, 530, 1140, 2321], borderColor: '#8B5CF6', tension: 0.12, fill: false, borderWidth: 3 }]
     },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
   });
@@ -686,13 +721,13 @@ function renderBarGraphDataChartInstance(blockId) {
     type: 'bar',
     data: {
       labels: Object.keys(appWorkspaceState.categories),
-      datasets: [{ data: [1080, 1750, 329, 0], backgroundColor: '#1D9E75' }]
+      datasets: [{ data: [1080, 1750, 329, 0], backgroundColor: '#0F766E', borderRadius: 6 }]
     },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
   });
 }
 
-// ════════════════════ OMNIDIRECTIONAL MULTI-AXIS SWAPPING COLLISION ENGINE ════════════════════
+// ════════════════════ OMNIDIRECTIONAL MULTI-AXIS SWAPPING COLLISION LAYOUTS ENGINE ════════════════════
 let dragStartCoordsRecord = { x: 0, y: 0 };
 
 function initializeInteractGridEngine() {
@@ -744,8 +779,8 @@ function initializeInteractGridEngine() {
         start(event) { event.target.classList.add('is-resizing'); },
         move(event) {
           let targetNode = event.target;
-          let w = event.rect.width < 220 ? 220 : event.rect.width;
-          let h = event.rect.height < 140 ? 140 : event.rect.height;
+          let w = event.rect.width < 240 ? 240 : event.rect.width;
+          let h = event.rect.height < 150 ? 150 : event.rect.height;
           targetNode.style.width = `${w}px`; targetNode.style.height = `${h}px`;
         },
         end(event) {
@@ -825,7 +860,7 @@ function renderSpendingCategoriesMatrixTab() {
 
     let row = document.createElement('div'); row.style.marginBottom = '20px';
     row.innerHTML = `
-      <div class="progress-labels"><strong>${catName}</strong><span>RM ${spent.toFixed(2)} / Limit: RM ${settings.budget}</span></div>
+      <div class="progress-labels"><strong>${catName}</strong><span>RM ${spent.toFixed(2)} / Limit: RM ${settings.budget} (${pct}% used)</span></div>
       <div class="bar-background"><div class="bar-fill" style="width:${pct > 100 ? 100 : pct}%; background:${settings.color}"></div></div>
     `;
     container.appendChild(row);
@@ -845,14 +880,14 @@ function submitMatrixCategorySetupForm() {
 function addCustomCategoryFromSidebar() {
   const val = document.getElementById('sidebar-new-cat-input').value.trim();
   if(!val || appWorkspaceState.categories[val]) return;
-  appWorkspaceState.categories[val] = { budget: 1000.00, color: "var(--teal)" };
+  appWorkspaceState.categories[val] = { budget: 1000.00, color: "var(--teal-primary)" };
   document.getElementById('sidebar-new-cat-input').value = '';
   commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
 }
 
 function generateCustomBlockOnCanvas(type) {
   const randId = `block-custom-${Date.now()}`;
-  appWorkspaceState.blocks.push({ id: randId, type: type, title: `Custom ${type}`, x: 40, y: 40, w: 320, h: 180 });
+  appWorkspaceState.blocks.push({ id: randId, type: type, title: `Custom ${type}`, x: 40, y: 40, w: 320, h: 190 });
   commitStateChangesToLocalStorage(); closeAddBlockMenuModal(); executeInterfaceRenderingPipeline();
 }
 
@@ -883,7 +918,7 @@ function executeMockOcrParsingAction(ref) {
   if(!ref.files || !ref.files[0]) return;
   const cat = document.getElementById('upload-matrix-selector').value;
   document.getElementById('ocr-feedback-toast-panel').style.display = 'block';
-  document.getElementById('ocr-feedback-toast-panel').innerHTML = `<strong>⚡ Scanner Tool:</strong> Processed receipt entry value matching <strong>RM 142.80</strong>.`;
+  document.getElementById('ocr-feedback-toast-panel').innerHTML = `<strong>⚡ Scanner Tool:</strong> Parsed statement entry value matching <strong>RM 142.80</strong>.`;
 
   appWorkspaceState.transactions.unshift({ date: new Date().toISOString().split('T')[0], desc: "OCR Statement Captured Receipt", category: cat, type: "Debit Outflow", amount: 142.80 });
   commitStateChangesToLocalStorage(); executeInterfaceRenderingPipeline();
