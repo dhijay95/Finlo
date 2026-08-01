@@ -1,1243 +1,476 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1a1714">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>TripSplit — Live Expense Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#f7f5f2;--surface:#fff;--s2:#f0ede8;--s3:#e6e2db;
-  --ink:#1a1714;--ink2:#6b6560;--ink3:#a09b96;
-  --accent:#d4622a;--alt:#fdf0ea;--adk:#b04e1f;
-  --grn:#1a7a4a;--grn-lt:#e6f5ed;
-  --blu:#1d5fa8;--blu-lt:#e8f0fb;
-  --red:#c0392b;--red-lt:#fde8e8;
-  --brd:rgba(0,0,0,0.08);--brd2:rgba(0,0,0,0.14);
-  --shd:0 1px 3px rgba(0,0,0,0.06),0 4px 14px rgba(0,0,0,0.05);
-  --shd-lg:0 8px 32px rgba(0,0,0,0.13),0 2px 8px rgba(0,0,0,0.06);
-  --r:10px;--rl:16px;--rxl:22px;
-}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
-.app{width:100%;max-width:468px;min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
-@media(min-width:520px){body{align-items:center;padding:28px 16px}.app{min-height:auto;border-radius:var(--rxl);overflow:hidden;box-shadow:var(--shd-lg);border:1px solid var(--brd)}}
-.view{display:flex;flex-direction:column;min-height:100%}
-.hidden{display:none!important}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripSplit - Shared Expense Tracker</title>
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --primary-hover: #4338CA;
+      --bg: #F9FAFB;
+      --card: #FFFFFF;
+      --text: #111827;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+      --success: #10B981;
+      --danger: #EF4444;
+    }
 
-/* DASH HEADER */
-.dash-head{background:#1a1714;padding:36px 22px 28px;color:#fff;position:relative;overflow:hidden}
-.dash-head::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(212,98,42,.28) 0%,transparent 65%);pointer-events:none}
-.dash-head .lbl{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:10px;font-weight:500}
-.dash-head h1{font-family:'DM Serif Display',serif;font-size:2.1rem;color:#fff;line-height:1.1}
-.user-btn{display:inline-flex;align-items:center;gap:9px;margin-top:18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:7px 14px 7px 7px;cursor:pointer;font-family:'DM Sans',sans-serif;color:#fff;font-size:.85rem;transition:background .15s}
-.user-btn:hover{background:rgba(255,255,255,.16)}
-.avatar{width:26px;height:26px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:600;color:#fff;flex-shrink:0}
+    * { box-sizing: border-box; }
 
-/* NAV */
-.trip-header{position:sticky;top:0;z-index:60;background:var(--surface)}
-.nav-bar{background:var(--surface);border-bottom:1px solid var(--brd);padding:11px 14px;display:flex;align-items:center;gap:9px}
-.nav-back{width:34px;height:34px;border-radius:50%;background:var(--s2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;transition:background .14s}
-.nav-back:hover{background:var(--s3)}
-.nav-title-input{background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:.96rem;font-weight:600;color:var(--ink);width:100%;min-width:0;padding:0}
-.nav-title-input:focus{outline:none;border-bottom:1.5px solid var(--accent)}
-.nav-title-input::placeholder{color:var(--ink3)}
-.nav-pill{font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.pill-live{background:var(--grn-lt);color:var(--grn)}
-.pill-off{background:#fef9c3;color:#7a5c00}
-.pill-local{background:var(--s2);color:var(--ink2)}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
 
-/* STAT BAR */
-.stat-bar{background:var(--surface);border-bottom:1px solid var(--brd);padding:13px 22px;display:flex;align-items:baseline;gap:8px}
-.s-lbl{font-size:.73rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3)}
-.s-val{font-family:'DM Serif Display',serif;font-size:1.65rem;color:var(--accent)}
-.s-curr{font-size:.82rem;color:var(--ink2)}
+    .container {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-/* CONTENT */
-.content{padding:18px;flex:1}
+    .card {
+      background: var(--card);
+      padding: 18px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+    }
 
-/* TRIP CARDS */
-.trip-card{background:var(--surface);border-radius:var(--rl);padding:17px;cursor:pointer;border:1px solid var(--brd);transition:transform .15s,box-shadow .15s,border-color .15s;position:relative;margin-bottom:10px}
-.trip-card:hover{transform:translateY(-2px);box-shadow:var(--shd);border-color:var(--brd2)}
-.tc-inner{display:flex;gap:13px;align-items:flex-start}
-.tc-icon{width:42px;height:42px;border-radius:11px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0}
-.tc-info h2{font-size:.97rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;margin-bottom:2px}
-.tc-meta{font-size:.77rem;color:var(--ink2)}
-.tc-total{font-family:'DM Serif Display',serif;font-size:1.22rem;color:var(--accent);margin-top:9px}
-.tc-pips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
-.pip{font-size:.7rem;font-weight:500;padding:2px 8px;border-radius:20px;background:var(--s2);color:var(--ink2)}
-.card-acts{position:absolute;top:12px;right:12px;display:flex;gap:5px}
-.icon-btn{background:var(--s2);border:none;border-radius:8px;width:29px;height:29px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:background .13s;flex-shrink:0}
-.icon-btn:hover{background:var(--s3)}
-.icon-btn.del:hover{background:var(--red-lt);color:var(--red)}
+    h1, h2, h3 { margin: 0 0 12px 0; font-weight: 700; }
+    h2 { font-size: 1.15rem; color: #1F2937; }
 
-/* BUTTONS */
-.btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 18px;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.91rem;font-weight:600;border:none;cursor:pointer;transition:transform .12s,background .15s;width:100%}
-.btn:active{transform:scale(.98)}
-.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--adk)}
-.btn-green{background:var(--grn);color:#fff}.btn-green:hover{background:#145c38}
-.btn-ghost{background:var(--s2);color:var(--ink)}.btn-ghost:hover{background:var(--s3)}
-.btn-outline{background:transparent;color:var(--ink);border:1px solid var(--brd2)}.btn-outline:hover{background:var(--s2)}
-.btn-sm{padding:7px 12px;font-size:.8rem;width:auto;border-radius:8px}
-.btn-xs{padding:4px 9px;font-size:.74rem;width:auto;border-radius:6px;background:var(--s2);color:var(--ink2);border:none;cursor:pointer;font-family:inherit;transition:background .12s}
-.btn-xs:hover{background:var(--s3)}
-.btn-xs.del:hover{background:var(--red-lt);color:var(--red)}
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
 
-/* FORMS */
-.fg{margin-bottom:12px}.fg:last-child{margin-bottom:0}
-.fl{display:block;font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);margin-bottom:5px}
-input[type=text],input[type=number],select,textarea{width:100%;padding:10px 11px;background:var(--surface);border:1px solid var(--brd2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.91rem;color:var(--ink);transition:border-color .14s,box-shadow .14s;-webkit-appearance:none;appearance:none}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,98,42,.11)}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23999' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;cursor:pointer}
-.row2{display:flex;gap:8px}.row2>*{flex:1}
+    label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
 
-/* SPLIT MODE TABS */
-.split-tabs{display:flex;gap:4px;background:var(--s2);padding:4px;border-radius:10px;margin-bottom:14px}
-.stab{flex:1;padding:7px 4px;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;background:transparent;color:var(--ink2);transition:all .15s;text-align:center}
-.stab.act{background:var(--surface);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+    input, select, button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      outline: none;
+      width: 100%;
+    }
 
-/* MEMBER CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
-.chip{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:20px;font-size:.79rem;font-weight:500;cursor:pointer;background:var(--s2);color:var(--ink2);border:1.5px solid transparent;transition:all .12s;user-select:none}
-.chip input{display:none}
-.chip.on{background:var(--alt);color:var(--accent);border-color:var(--accent)}
-.chip .ck{display:none;font-size:.65rem}.chip.on .ck{display:inline}
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
 
-/* CURRENCY CHIPS */
-.cc{padding:4px 10px;border-radius:8px;font-size:.77rem;font-weight:700;cursor:pointer;background:var(--s2);color:var(--ink2);border:1.5px solid transparent;transition:all .12s;user-select:none}
-.cc input{display:none}
-.cc.on{background:var(--alt);color:var(--accent);border-color:var(--accent)}
+    .row-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
 
-/* SCARD */
-.scard{background:var(--surface);border-radius:var(--rl);padding:15px;border:1px solid var(--brd);margin-bottom:16px}
-.scard-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3);margin-bottom:13px}
+    .btn-add-sm {
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
 
-/* SECTION HEADER */
-.sec-head{display:flex;justify-content:space-between;align-items:center;margin:16px 0 9px}
-.sec-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3)}
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
 
-/* API STATUS */
-.api-st{font-size:.72rem;margin-top:4px;display:flex;align-items:center;gap:4px}
+    .btn-primary:hover { background-color: var(--primary-hover); }
 
-/* UNEQUAL SPLIT INPUTS */
-.split-custom-grid{display:flex;flex-direction:column;gap:7px;margin-top:8px}
-.split-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s2);border-radius:9px}
-.split-row .member-name{flex:1;font-size:.85rem;font-weight:500}
-.split-row input[type=number]{width:90px;flex-shrink:0;text-align:right;padding:6px 8px;font-size:.85rem}
-.split-row .unit{font-size:.78rem;color:var(--ink2);width:24px;flex-shrink:0}
-.split-total-row{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;font-size:.8rem;font-weight:600;border-radius:8px;margin-top:4px}
-.split-ok{background:var(--grn-lt);color:var(--grn)}
-.split-warn{background:var(--red-lt);color:var(--red)}
+    /* Requirement 1 & 3: Member Tags with X Button */
+    .member-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
 
-/* ITEMIZED SPLIT */
-.item-row{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--s2);border-radius:9px;margin-bottom:7px;flex-wrap:wrap}
-.item-row .item-name-inp{flex:1;min-width:110px;padding:7px 9px;font-size:.85rem}
-.item-row .item-amt-inp{width:80px;flex-shrink:0;text-align:right;padding:7px 8px;font-size:.85rem}
-.item-assign{display:flex;flex-wrap:wrap;gap:5px;width:100%;margin-top:2px}
-.item-chip{font-size:.72rem;padding:3px 9px;border-radius:20px;background:var(--surface);color:var(--ink2);cursor:pointer;border:1.5px solid transparent;user-select:none}
-.item-chip.on{background:var(--alt);color:var(--accent);border-color:var(--accent)}
+    .member-tag {
+      background: #F3F4F6;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-/* EXPENSE LIST */
-.exp-item{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:12px;margin-bottom:7px;display:flex;gap:10px;align-items:flex-start}
-.exp-icon{width:34px;height:34px;border-radius:9px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
-.exp-body{flex:1;min-width:0}
-.exp-name{font-weight:600;font-size:.91rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.exp-cat{display:inline-block;font-size:.67rem;font-weight:600;padding:1px 7px;border-radius:20px;margin-top:2px}
-.exp-meta{font-size:.75rem;color:var(--ink2);margin-top:3px}
-.exp-acts{display:flex;gap:4px;margin-top:6px}
-.exp-right{text-align:right;flex-shrink:0}
-.exp-amt{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--accent)}
-.exp-conv{font-size:.68rem;color:var(--ink3);margin-top:2px}
+    .member-tag .btn-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0;
+      width: auto;
+      font-size: 0.9rem;
+    }
 
-/* PLACES */
-.place-item{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:12px;margin-bottom:7px;display:flex;gap:10px;align-items:flex-start}
-.place-icon{width:34px;height:34px;border-radius:9px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
-.place-body{flex:1;min-width:0}
-.place-name{font-weight:600;font-size:.91rem}
-.place-status{display:inline-block;font-size:.67rem;font-weight:600;padding:1px 7px;border-radius:20px;margin-top:2px;margin-right:4px}
-.status-want{background:#fef9c3;color:#7a5c00}
-.status-visited{background:var(--grn-lt);color:var(--grn)}
-.place-note{font-size:.75rem;color:var(--ink2);margin-top:3px}
-.place-acts{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+    .member-tag .btn-remove:hover { color: var(--danger); }
 
-/* DEBTS */
-.debt-item{display:flex;justify-content:space-between;align-items:center;background:var(--blu-lt);border-radius:var(--r);padding:10px 13px;margin-bottom:7px;border-left:3px solid var(--blu);transition:opacity .2s}
-.debt-check{display:flex;align-items:center;gap:9px;cursor:pointer}
-.debt-cb{width:17px;height:17px;flex-shrink:0;cursor:pointer;accent-color:var(--grn)}
-.debt-item.settled{opacity:.5}
-.debt-names{font-size:.86rem;font-weight:500}
-.deb{color:var(--red)}.cred{color:var(--grn)}
-.debt-amt{font-family:'DM Serif Display',serif;font-size:.98rem;color:var(--ink);white-space:nowrap}
+    /* Requirement 1: Beautified Split Chips */
+    .chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 
-/* MY SUMMARY CARD */
-.my-card{background:linear-gradient(135deg,#1a1714 0%,#2d2520 100%);border-radius:var(--rl);padding:16px;margin-bottom:16px;color:#fff}
-.my-card .label{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px}
-.my-card .my-name{font-family:'DM Serif Display',serif;font-size:1.3rem;color:#fff;margin-bottom:12px}
-.my-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.my-stat{background:rgba(255,255,255,.08);border-radius:9px;padding:10px 12px}
-.my-stat .ms-lbl{font-size:.68rem;color:rgba(255,255,255,.45);margin-bottom:3px}
-.my-stat .ms-val{font-family:'DM Serif Display',serif;font-size:1.25rem}
-.ms-grn{color:#5ddb92}.ms-red{color:#ff7b6b}.ms-neu{color:rgba(255,255,255,.8)}
+    .chip {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: #F9FAFB;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
 
-/* BUDGET BAR */
-.budget-card{background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);padding:15px;margin-bottom:16px}
-.budget-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.budget-track{height:8px;background:var(--s2);border-radius:20px;overflow:hidden;margin-bottom:6px}
-.budget-fill{height:100%;border-radius:20px;background:var(--grn);transition:width .5s}
-.budget-fill.warn{background:#d97706}
-.budget-fill.over{background:var(--red)}
-.budget-labels{display:flex;justify-content:space-between;font-size:.73rem;color:var(--ink2)}
+    .chip.on {
+      background: #EEF2FF;
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
 
-/* BREAKDOWN */
-.breakdown-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
-.br-name{font-size:.84rem;font-weight:500;width:70px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.br-bar-wrap{flex:1;height:6px;background:var(--s2);border-radius:20px;overflow:hidden}
-.br-bar{height:100%;border-radius:20px;background:var(--accent);transition:width .5s}
-.br-amt{font-size:.8rem;font-weight:600;color:var(--ink);white-space:nowrap;min-width:60px;text-align:right}
+    .chip input[type="checkbox"] { display: none; }
 
-/* MEMBER ADD-ROW LIST */
-.member-lines{display:flex;flex-direction:column;gap:7px;margin-top:2px}
-.member-line{display:flex;align-items:center;gap:8px;animation:memberIn .28s cubic-bezier(.22,1,.36,1)}
-.member-line .mnum{width:26px;height:26px;border-radius:50%;background:var(--alt);color:var(--accent);font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.member-line input[type=text]{flex:1;padding:9px 11px}
-.member-line .m-remove{width:32px;height:32px;flex-shrink:0;border:none;border-radius:8px;background:var(--s2);color:var(--ink2);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:background .13s,color .13s}
-.member-line .m-remove:hover{background:var(--red-lt);color:var(--red)}
-.member-line.leaving{animation:memberOut .22s ease forwards}
-.add-member-btn{display:inline-flex;align-items:center;gap:7px;margin-top:9px;padding:8px 14px;border:1.5px dashed var(--brd2);background:transparent;color:var(--accent);font-family:inherit;font-size:.83rem;font-weight:600;border-radius:10px;cursor:pointer;transition:background .14s,border-color .14s}
-.add-member-btn:hover{background:var(--alt);border-color:var(--accent)}
-.add-member-btn .plus{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:.95rem;line-height:1;transition:transform .2s}
-@keyframes memberIn{0%{opacity:0;transform:translateY(-8px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes memberOut{0%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(20px)}}
+    .split-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; }
 
-/* MAIN TABS */
-.main-tabs{display:flex;gap:4px;background:var(--surface);border-bottom:1px solid var(--brd);padding:8px 12px}
-.mtab{flex:1;padding:9px 6px;border:none;border-radius:9px;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;background:transparent;color:var(--ink2);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
-.mtab.act{background:var(--alt);color:var(--accent)}
+    .stab {
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: #F3F4F6;
+      border: none;
+      font-size: 0.85rem;
+      cursor: pointer;
+      white-space: nowrap;
+      width: auto;
+    }
 
-/* STICKY OWE STRIP */
-.owe-strip{display:flex;align-items:center;gap:8px;padding:9px 16px;font-size:.82rem;font-weight:600;border-bottom:1px solid var(--brd);transition:background .2s,color .2s}
-.owe-strip .os-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.owe-strip .os-names{color:var(--ink2);font-weight:500;font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.owe-strip.owe{background:#fff4ec;color:var(--adk)}.owe-strip.owe .os-dot{background:var(--accent)}
-.owe-strip.owed{background:var(--grn-lt);color:var(--grn)}.owe-strip.owed .os-dot{background:var(--grn)}
-.owe-strip.clear{background:var(--s2);color:var(--ink2)}.owe-strip.clear .os-dot{background:var(--ink3)}
+    .stab.act { background: var(--primary); color: white; }
 
-/* ACTIVITY LOG COLLAPSE */
-.act-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);padding:13px 15px;cursor:pointer;font-family:inherit;transition:background .14s}
-.act-toggle:hover{background:var(--s2)}
-.act-toggle .at-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3)}
-.act-toggle .at-chev{font-size:.8rem;color:var(--ink2);transition:transform .25s}
-.act-toggle.open .at-chev{transform:rotate(180deg)}
-.act-panel{overflow:hidden;max-height:0;transition:max-height .3s ease}
-.act-panel.open{max-height:1200px}
-.act-panel .scard{margin-top:8px;margin-bottom:0}
+    .split-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
 
-/* MODALS & TOAST */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:500;display:flex;align-items:flex-end;justify-content:center}
-@media(min-width:520px){.modal-bg{align-items:center}}
-.modal{background:var(--surface);border-radius:var(--rxl) var(--rxl) 0 0;padding:22px 18px 30px;width:100%;max-width:468px;max-height:90vh;overflow-y:auto}
-@media(min-width:520px){.modal{border-radius:var(--rxl)}}
-.mhandle{width:32px;height:4px;border-radius:4px;background:var(--s3);margin:0 auto 18px}
-.modal h2{font-family:'DM Serif Display',serif;font-size:1.25rem;font-weight:400;margin-bottom:5px}
-.modal .sub{font-size:.82rem;color:var(--ink2);margin-bottom:13px;line-height:1.5}
-.modal textarea{font-family:monospace;font-size:.77rem;height:88px;resize:none;margin-bottom:11px;background:var(--s2)}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1a1714;color:#fff;padding:9px 18px;border-radius:30px;font-size:.82rem;font-weight:500;z-index:9000;box-shadow:var(--shd-lg);transition:opacity .3s;white-space:nowrap;pointer-events:none}
-.toast.gone{opacity:0}
+    .split-val-inp { width: 100px; text-align: right; }
 
-.activity-item{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--brd);font-size:.8rem}
-.activity-item:last-child{border-bottom:none}
-.act-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
-.act-text{flex:1;color:var(--ink2);line-height:1.4}
-.act-time{font-size:.68rem;color:var(--ink3);flex-shrink:0;margin-top:2px}
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
 
-.cat-food{background:#fef3c7;color:#92400e}.cat-transport{background:#dbeafe;color:#1e40af}
-.cat-hotel{background:#f3e8ff;color:#6b21a8}.cat-drink{background:#fce7f3;color:#9d174d}
-.cat-shop{background:#dcfce7;color:#166534}.cat-activity{background:#ffedd5;color:#9a3412}
-.cat-misc{background:#f1f5f9;color:#475569}
+    .list-item:last-child { border-bottom: none; }
 
-.empty{text-align:center;padding:28px 18px;color:var(--ink2)}
-.empty .ico{font-size:2rem;margin-bottom:9px}
-.empty p{font-size:.87rem}
-</style>
+    .total-banner {
+      background: #EEF2FF;
+      color: var(--primary);
+      padding: 14px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.15rem;
+    }
+
+    .subtitle { font-size: 0.8rem; color: var(--text-muted); }
+    
+    /* Requirement 2: Non-bold italic item notes */
+    .debt-item-note {
+      font-style: italic;
+      font-weight: normal !important;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* Requirement 5: Google Maps Link button */
+    .map-link {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .map-link:hover { text-decoration: underline; }
+
+    /* Modal for custom category */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 360px;
+    }
+  </style>
 </head>
 <body>
 
-<div id="toast" class="toast gone"></div>
+<div class="container">
+  <h1>✈️ TripSplit</h1>
 
-<div id="id-modal" class="modal-bg hidden">
+  <!-- Trip Management Card -->
+  <div class="card">
+    <h2>Trip Setup</h2>
+    
+    <div class="input-group">
+      <label>Add Member</label>
+      <div class="row-group">
+        <input type="text" id="new-member-input" placeholder="e.g. Alex" onkeydown="if(event.key==='Enter') addMember()">
+        <button class="btn-add-sm" onclick="addMember()">+</button>
+      </div>
+      <!-- Requirement 3: Member list tags with X buttons -->
+      <div id="member-tags-container" class="member-tags"></div>
+    </div>
+
+    <div class="input-group">
+      <label for="trip-curr">Main Currency</label>
+      <select id="trip-curr" onchange="renderTrip()">
+        <option value="MYR">MYR (RM)</option>
+        <option value="USD">USD ($)</option>
+        <option value="EUR">EUR (€)</option>
+        <option value="THB">THB (฿)</option>
+        <option value="VND">VND (₫)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Total Spend Summary Banner -->
+  <div class="total-banner">
+    Total Spent: <span id="total-curr">MYR</span> <span id="total-val">0.00</span>
+  </div>
+
+  <!-- Add Expense Card -->
+  <div class="card">
+    <h2>Add Expense</h2>
+    
+    <div class="input-group">
+      <label for="exp-title">Description</label>
+      <input type="text" id="exp-title" placeholder="e.g. Dinner at Night Market">
+    </div>
+
+    <!-- Requirement 3: Default show 0.00 -->
+    <div class="input-group">
+      <label for="exp-amount">Amount</label>
+      <input type="number" id="exp-amount" value="0.00" step="0.01" min="0" onfocus="if(this.value==='0.00') this.value=''">
+    </div>
+
+    <div class="input-group">
+      <label for="exp-payer">Paid By</label>
+      <select id="exp-payer"></select>
+    </div>
+
+    <!-- Requirement 6: Category button with small '+' popup -->
+    <div class="input-group">
+      <label for="exp-cat">Category</label>
+      <div class="row-group">
+        <select id="exp-cat"></select>
+        <button class="btn-add-sm" type="button" onclick="openCategoryModal()" title="Add Custom Category">+</button>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Split Mode</label>
+      <div class="split-tabs">
+        <button class="stab act" onclick="setSplitMode('equal', this)">Equal</button>
+        <button class="stab" onclick="setSplitMode('unequal', this)">Exact</button>
+        <button class="stab" onclick="setSplitMode('percent', this)">Percent</button>
+        <button class="stab" onclick="setSplitMode('shares', this)">Shares</button>
+      </div>
+    </div>
+
+    <!-- Requirement 1: Beautified Split Mode UI -->
+    <div id="split-equal-ui">
+      <label>Split Among</label>
+      <div id="split-chips" class="chips-container"></div>
+    </div>
+
+    <div id="split-custom-ui" style="display: none;">
+      <label id="custom-lbl">Custom Split</label>
+      <div id="split-custom-grid"></div>
+    </div>
+
+    <button class="btn-primary" onclick="addExpense()">Add Expense</button>
+  </div>
+
+  <!-- Requirement 4: Swapped Order - 1st Expense History -->
+  <div class="card">
+    <h2>Expense History</h2>
+    <div id="expense-list"></div>
+  </div>
+
+  <!-- Requirement 4: Swapped Order - 2nd New Feature: Category Analytics & Settlement -->
+  <div class="card">
+    <h2>Category Spend Analysis</h2>
+    <div id="category-analytics"></div>
+  </div>
+
+  <!-- Requirement 2: Balances with non-bold italic item notes -->
+  <div class="card">
+    <h2>Balances & Settlement</h2>
+    <div id="balances-list"></div>
+  </div>
+
+  <!-- Requirement 5: Places & Google Maps links -->
+  <div class="card">
+    <h2>Saved Places & Maps</h2>
+    <div class="input-group">
+      <div class="row-group">
+        <input type="text" id="place-input" placeholder="e.g. Ben Thanh Market, Saigon">
+        <button class="btn-add-sm" onclick="addPlace()">+</button>
+      </div>
+    </div>
+    <div id="places-list"></div>
+  </div>
+
+  <!-- Requirement 7: Replaced notes with Data Export & Sync Engine Status -->
+  <div class="card">
+    <h2>Data Engine & Trip Backup</h2>
+    <p class="subtitle" style="margin-bottom: 12px;">App state automatically syncs locally and generates instant exports for group sharing.</p>
+    <div class="row-group">
+      <button class="btn-primary" style="margin-top:0;" onclick="exportCSV()">Export to CSV</button>
+      <button class="btn-primary" style="margin-top:0; background:#374151;" onclick="clearTripData()">Reset Trip Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- Requirement 6: Custom Category Popup Modal -->
+<div id="cat-modal" class="modal-overlay">
   <div class="modal">
-    <div class="mhandle"></div>
-    <h2>Who are you?</h2>
-    <p class="sub">Enter your name — if this trip is shared, you'll be added as a member automatically.</p>
-    <div class="fg"><label class="fl">Your Name</label><input type="text" id="name-inp" placeholder="e.g., Bhagat" autocomplete="given-name"></div>
-    <button class="btn btn-primary" onclick="saveIdentity()">Save &amp; Continue</button>
-    <button class="btn btn-ghost" id="name-cancel" onclick="closeIdModal()" style="margin-top:9px;display:none">Cancel</button>
+    <h3>Add Custom Category</h3>
+    <div class="input-group">
+      <label for="custom-cat-input">Category Name</label>
+      <input type="text" id="custom-cat-input" placeholder="e.g. Massages, Fuel, Sightseeing">
+    </div>
+    <div class="row-group" style="margin-top: 12px;">
+      <button class="btn-primary" onclick="saveCustomCategory()">Add Category</button>
+      <button class="btn-primary" style="background:#6B7280;" onclick="closeCategoryModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
-<div id="settle-modal" class="modal-bg hidden">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <h2>Settle Up</h2>
-    <p class="sub">Copy &amp; send this to your group chat!</p>
-    <textarea id="settle-ta" readonly></textarea>
-    <button class="btn btn-primary" onclick="copySettle()">Copy to Clipboard</button>
-    <button class="btn btn-ghost" onclick="closeModal('settle-modal')" style="margin-top:9px">Close</button>
-  </div>
-</div>
-
-<div id="share-modal" class="modal-bg hidden">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <h2>Share Trip</h2>
-    <p class="sub" id="share-desc">Send this link. Anyone who opens it and enters their name is auto-added as a member.</p>
-    <textarea id="share-ta" readonly></textarea>
-    <button class="btn btn-primary" onclick="copyShareLink()">Copy Link</button>
-    <button class="btn btn-ghost" onclick="closeModal('share-modal')" style="margin-top:9px">Close</button>
-  </div>
-</div>
-
-<div id="budget-modal" class="modal-bg hidden">
-  <div class="modal">
-    <div class="mhandle"></div>
-    <h2>Set Trip Budget</h2>
-    <p class="sub">Track spending against a total budget for the trip.</p>
-    <div class="fg"><label class="fl">Budget Amount (<span id="bud-curr-lbl">MYR</span>)</label><input type="number" id="bud-inp" placeholder="e.g., 5000" min="0" step="1"></div>
-    <button class="btn btn-primary" onclick="saveBudget()">Save Budget</button>
-    <button class="btn btn-ghost" onclick="closeModal('budget-modal')" style="margin-top:9px">Remove Budget</button>
-  </div>
-</div>
-
-<div class="app">
-
-  <div id="dash-view" class="view">
-    <div class="dash-head">
-      <div class="lbl">TripSplit</div>
-      <h1>My Trips</h1>
-      <button class="user-btn" onclick="editIdentity()">
-        <div class="avatar" id="d-avatar">?</div>
-        <span id="d-name">Set your name</span>
-        <span style="opacity:.4;font-size:.75rem">✏️</span>
-      </button>
-    </div>
-    <div class="content">
-      <button class="btn btn-primary" onclick="createTrip()" style="margin-bottom:16px">+ New Trip</button>
-      <div id="trips-grid"><div class="empty"><div class="ico">✈️</div><p>No trips yet. Create one above!</p></div></div>
-    </div>
-  </div>
-
-  <div id="trip-view" class="view hidden">
-
-    <div class="trip-header">
-      <div class="nav-bar">
-        <button class="nav-back" onclick="closeTrip()">←</button>
-        <div style="flex:1;min-width:0">
-          <input type="text" class="nav-title-input" id="trip-title" placeholder="Trip name…" oninput="qSave()">
-        </div>
-        <span class="nav-pill" id="sync-pill">⏳</span>
-        <button class="btn btn-sm btn-outline" onclick="openShareModal()">Share 🔗</button>
-      </div>
-
-      <div class="owe-strip clear" id="owe-strip">
-        <span class="os-dot"></span>
-        <span id="os-main">You're all settled up 🎉</span>
-        <span class="os-names" id="os-names"></span>
-      </div>
-
-      <div class="main-tabs">
-        <button class="mtab act" id="mtab-expenses" onclick="switchTab('expenses')">💸 Expenses</button>
-        <button class="mtab" id="mtab-places" onclick="switchTab('places')">📍 Places</button>
-        <button class="mtab" id="mtab-balances" onclick="switchTab('balances')">📊 Balances</button>
-      </div>
-    </div>
-
-    <div class="stat-bar">
-      <span class="s-lbl">Total Spent</span>
-      <span class="s-val" id="total-val">0.00</span>
-      <span class="s-curr" id="total-curr">MYR</span>
-    </div>
-
-    <div class="content">
-
-      <!-- ══ EXPENSES TAB ══ -->
-      <div class="tab-panel" id="panel-expenses">
-
-      <div class="my-card" id="my-summary-card" style="display:none">
-        <div class="label">Your summary</div>
-        <div class="my-name" id="my-summary-name"></div>
-        <div class="my-stats">
-          <div class="my-stat"><div class="ms-lbl">You paid</div><div class="ms-val ms-neu" id="ms-paid">0.00</div></div>
-          <div class="my-stat"><div class="ms-lbl">Your share</div><div class="ms-val ms-neu" id="ms-share">0.00</div></div>
-          <div class="my-stat"><div class="ms-lbl">You're owed</div><div class="ms-val ms-grn" id="ms-owed">0.00</div></div>
-          <div class="my-stat"><div class="ms-lbl">You owe</div><div class="ms-val ms-red" id="ms-owe">0.00</div></div>
-        </div>
-      </div>
-
-      <div class="budget-card" id="budget-card" style="display:none">
-        <div class="budget-title">
-          <span style="font-size:.82rem;font-weight:600">Trip Budget</span>
-          <button class="btn-xs" onclick="openBudgetModal()">Edit</button>
-        </div>
-        <div class="budget-track"><div class="budget-fill" id="bud-fill" style="width:0%"></div></div>
-        <div class="budget-labels">
-          <span id="bud-spent-lbl">0.00 spent</span>
-          <span id="bud-left-lbl">0.00 left</span>
-        </div>
-      </div>
-
-      <div class="scard">
-        <div class="scard-title">⚙ Trip Settings</div>
-        <div class="fg">
-          <label class="fl">Base Currency</label>
-          <select id="main-curr" onchange="fetchRates();qSave()">
-            <option value="MYR">MYR — Malaysian Ringgit</option>
-            <option value="SGD">SGD — Singapore Dollar</option>
-            <option value="USD">USD — US Dollar</option>
-            <option value="EUR">EUR — Euro</option>
-            <option value="GBP">GBP — British Pound</option>
-            <option value="AUD">AUD — Australian Dollar</option>
-            <option value="JPY">JPY — Japanese Yen</option>
-            <option value="THB">THB — Thai Baht</option>
-            <option value="IDR">IDR — Indonesian Rupiah</option>
-          </select>
-          <div class="api-st" id="api-status"><span style="color:#d97706">⬤</span> Fetching rates…</div>
-        </div>
-        <div class="fg">
-          <label class="fl">Members</label>
-          <div class="member-lines" id="members-list"></div>
-          <input type="hidden" id="members-inp">
-          <button type="button" class="add-member-btn" onclick="addMemberLine('', true)"><span class="plus">+</span> Add person</button>
-          <div style="margin-top:8px;font-size:.72rem;color:var(--ink3)">👆 Members also auto-join when they open your share link</div>
-        </div>
-        <div class="fg">
-          <label class="fl">Payment Currencies</label>
-          <div style="display:flex;flex-wrap:wrap;gap:5px" id="curr-chips">
-            <label class="cc on" onclick="toggleCC(this)"><input type="checkbox" value="MYR" checked>MYR</label>
-            <label class="cc on" onclick="toggleCC(this)"><input type="checkbox" value="SGD" checked>SGD</label>
-            <label class="cc" onclick="toggleCC(this)"><input type="checkbox" value="USD">USD</label>
-            <label class="cc" onclick="toggleCC(this)"><input type="checkbox" value="EUR">EUR</label>
-            <label class="cc" onclick="toggleCC(this)"><input type="checkbox" value="IDR">IDR</label>
-            <label class="cc" onclick="toggleCC(this)"><input type="checkbox" value="JPY">JPY</label>
-            <label class="cc" onclick="toggleCC(this)"><input type="checkbox" value="THB">THB</label>
-            <label class="cc" onclick="toggleCC(this)"><input type="checkbox" value="GBP">GBP</label>
-            <label class="cc" onclick="toggleCC(this)"><input type="checkbox" value="AUD">AUD</label>
-          </div>
-        </div>
-        <div class="fg" style="margin-bottom:0">
-          <button class="btn-xs" onclick="openBudgetModal()">🎯 Set Trip Budget</button>
-        </div>
-      </div>
-
-      <div class="sec-head">
-        <div class="sec-title" id="form-title">Add Expense</div>
-        <button class="btn-xs del" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none">✕ Cancel</button>
-      </div>
-
-      <div class="scard">
-        <div class="row2 fg">
-          <div><label class="fl">Description</label><input type="text" id="exp-name" placeholder="e.g., Hotel Night 1"></div>
-          <div style="flex:0 0 120px"><label class="fl">Category</label>
-            <select id="exp-cat">
-              <option value="misc">🧾 Misc</option>
-              <option value="food">🍜 Food</option>
-              <option value="drink">🥂 Drinks</option>
-              <option value="transport">🚕 Transport</option>
-              <option value="hotel">🏨 Hotel</option>
-              <option value="shop">🛍️ Shopping</option>
-              <option value="activity">🎟️ Activity</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row2 fg">
-          <div><label class="fl">Amount</label>
-            <div class="row2" style="gap:5px">
-              <select id="exp-curr" style="flex:0 0 78px"></select>
-              <input type="number" id="exp-amt" placeholder="0.00" min="0" step="0.01" oninput="onAmountChange()">
-            </div>
-          </div>
-          <div><label class="fl">Paid By</label><select id="exp-payer"></select></div>
-        </div>
-
-        <div class="fg">
-          <label class="fl">Note (optional)</label>
-          <input type="text" id="exp-note" placeholder="e.g., Nasi lemak + teh tarik">
-        </div>
-
-        <div class="fg">
-          <label class="fl">How to Split</label>
-          <div class="split-tabs">
-            <button class="stab act" onclick="setSplitMode('equal',this)">Equal</button>
-            <button class="stab" onclick="setSplitMode('unequal',this)">Exact</button>
-            <button class="stab" onclick="setSplitMode('items',this)">Items</button>
-            <button class="stab" onclick="setSplitMode('percent',this)">%</button>
-            <button class="stab" onclick="setSplitMode('shares',this)">Shares</button>
-            <button class="stab" onclick="setSplitMode('adjust',this)">Adjust</button>
-          </div>
-
-          <div id="split-equal-ui">
-            <label class="fl">Split Between</label>
-            <div class="chips" id="split-chips"></div>
-          </div>
-
-          <div id="split-custom-ui" style="display:none">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <label class="fl" style="margin:0" id="custom-lbl">Amount per person</label>
-              <button class="btn-xs" onclick="distributeEvenly()">Distribute evenly</button>
-            </div>
-            <div class="split-custom-grid" id="split-custom-grid"></div>
-            <div class="split-total-row" id="split-total-row" style="display:none"></div>
-          </div>
-
-          <div id="split-items-ui" style="display:none">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <label class="fl" style="margin:0">Items — tap who shared each one</label>
-              <button class="btn-xs" onclick="addItemRow()">+ Add Item</button>
-            </div>
-            <div id="items-grid"></div>
-            <div class="split-total-row" id="items-total-row" style="display:none"></div>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" id="save-btn" onclick="saveExpense()">Add Expense</button>
-      </div>
-
-      <div class="sec-head">
-        <div class="sec-title">Spending by Member</div>
-      </div>
-      <div class="scard" id="breakdown-card">
-        <div class="empty" style="padding:10px 0"><p>No expenses yet.</p></div>
-      </div>
-
-      <div class="sec-head">
-        <div class="sec-title">Expenses</div>
-      </div>
-      <div id="exp-list"></div>
-
-      <div class="sec-head" style="margin-top:20px"><div class="sec-title">History</div></div>
-      <button type="button" class="act-toggle" id="act-toggle" onclick="toggleActivity()">
-        <span class="at-lbl">📋 Activity Log</span>
-        <span class="at-chev">▾</span>
-      </button>
-      <div class="act-panel" id="act-panel">
-        <div class="scard"><div id="activity-log"><div class="empty" style="padding:8px 0"><p>No activity yet.</p></div></div></div>
-      </div>
-
-      </div><!-- /panel-expenses -->
-
-      <!-- ══ PLACES TAB ══ -->
-      <div class="tab-panel" id="panel-places" style="display:none">
-        <div class="sec-head">
-          <div class="sec-title">📍 Saved Places</div>
-        </div>
-        <div class="scard">
-          <div class="row2 fg">
-            <div><label class="fl">Name</label><input type="text" id="place-name" placeholder="e.g., Restoran Nasi Kandar"></div>
-            <div style="flex:0 0 118px"><label class="fl">Category</label>
-              <select id="place-cat">
-                <option value="food">🍜 Food</option>
-                <option value="drink">🥂 Drink</option>
-                <option value="activity">🎟️ Activity</option>
-                <option value="misc">📍 Other</option>
-              </select>
-            </div>
-          </div>
-          <div class="row2 fg">
-            <div><label class="fl">Note (optional)</label><input type="text" id="place-note" placeholder="e.g., Try the ayam berempah"></div>
-            <div style="flex:0 0 118px"><label class="fl">Status</label>
-              <select id="place-status">
-                <option value="want">👀 Want to try</option>
-                <option value="visited">✅ Visited</option>
-              </select>
-            </div>
-          </div>
-          <button class="btn btn-primary" onclick="savePlace()">+ Add Place</button>
-        </div>
-        <div id="places-list" style="margin-bottom:18px"></div>
-      </div><!-- /panel-places -->
-
-      <!-- ══ BALANCES TAB ══ -->
-      <div class="tab-panel" id="panel-balances" style="display:none">
-        <div class="sec-head"><div class="sec-title">Who owes who</div></div>
-        <div style="font-size:.72rem;color:var(--ink3);margin:-4px 0 10px">👆 Tick a payment once it's paid in real life to settle it</div>
-        <div id="debts-box"><div class="empty" style="padding:10px 0"><p>No expenses yet.</p></div></div>
-        <button class="btn btn-green" onclick="openSettle()" style="margin:6px 0 18px">💵 Settle Up — Copy Summary</button>
-      </div><!-- /panel-balances -->
-
-    </div>
-  </div>
-
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-/* ── FIREBASE CONFIG SETUP ── */
-const FB = {
-  apiKey: "AIzaSyALK2505G_al3Jkk9ptf1kEuaj3qg8P1pk",
-  authDomain: "tripsplit-dc2a9.firebaseapp.com",
-  databaseURL: "https://tripsplit-dc2a9-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "tripsplit-dc2a9",
-  storageBucket: "tripsplit-dc2a9.firebasestorage.app",
-  messagingSenderId: "138368232535",
-  appId: "1:138368232535:web:458e3f64e0d66269d74712"
-};
+/* ── GLOBAL STATE ── */
+let activeTripId = 'default-trip';
+let splitMode = 'equal';
 
-const FB_ON = FB.apiKey !== "YOUR_API_KEY";
-let db = null, fbOnline = false, tripListener = null;
+let categories = ['Food & Dining', 'Transport', 'Accommodation', 'Entertainment', 'Shopping', 'General'];
 
-if (FB_ON) {
-  try {
-    firebase.initializeApp(FB);
-    db = firebase.database();
-    db.ref('.info/connected').on('value', s => { fbOnline = !!s.val(); pill(); });
-  } catch(e) { console.warn("Firebase init failed", e); }
-}
+let membersList = ['Alex', 'Kiren', 'Sarah', 'Bhagat'];
 
-/* ── STATE VARIABLES ── */
-const LS = "TripSplitApp_MultiTrips";
-let allTrips = [], activeTripId = null, rates = {}, editingId = null;
-let myName = localStorage.getItem("TripSplit_MyName") || "";
-let saveTimer = null, splitMode = 'equal', catFilter = 'all';
-let lastWriteTs = 0;
-let currentItems = [], itemIdCounter = 0;
-let editingPlaceId = null;
+let placesList = [];
 
-/* ── INIT ── */
-window.onload = () => {
-  if (!myName) showIdModal(false); else updateDashChip();
-  try { allTrips = JSON.parse(localStorage.getItem(LS) || '[]'); } catch(e) { allTrips = []; }
-  handleURL();
-  renderDash();
-};
+let allTrips = [{
+  id: 'default-trip',
+  mainCurrency: 'MYR',
+  expenses: []
+}];
 
-/* ── URL / SHARE ROUTING ── */
-function handleURL() {
-  const p = new URLSearchParams(location.search);
-  const fbId = p.get('id');
-  if (fbId && FB_ON && db) {
-    const wantsJoin = p.get('join') === '1';
-    history.replaceState({}, '', location.pathname);
-    db.ref('trips/' + fbId).once('value').then(snap => {
-      const trip = snap.val();
-      if (!trip) { showToast("Trip not found."); return; }
-      mergeTripLocally(trip);
-      saveLocal();
-      if (wantsJoin && myName) autoJoinTrip(fbId);
-      else if (wantsJoin && !myName) {
-        window.__pendingJoinId = fbId;
-        showIdModal(false);
-      }
-      showToast("🎉 Trip loaded!");
-      openTrip(fbId);
-    }).catch(() => showToast("Couldn't load trip from cloud."));
-  }
-}
-
-function autoJoinTrip(tripId) {
-  if (!myName || !tripId || !FB_ON || !db) return;
-  db.ref('trips/' + tripId + '/membersInput').once('value').then(snap => {
-    let members = (snap.val() || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (!members.includes(myName)) {
-      members.push(myName);
-      db.ref('trips/' + tripId + '/membersInput').set(members.join(', '));
-      db.ref('trips/' + tripId + '/activity').push({ text: `${myName} joined the trip`, ts: Date.now() });
-      showToast(`👋 ${myName} added to trip!`);
-    }
-  });
-}
-
-function mergeTripLocally(incoming) {
-  const toArray = (obj) => (!obj ? [] : (Array.isArray(obj) ? obj : Object.values(obj)));
-  const idx = allTrips.findIndex(t => t.id === incoming.id);
-
-  if (idx !== -1) {
-    const ex = allTrips[idx];
-    ex.expenses = toArray(ex.expenses);
-    const incExp = toArray(incoming.expenses);
-    incExp.forEach(ie => {
-      const ei = ex.expenses.findIndex(e => e.id === ie.id);
-      if (ei === -1) ex.expenses.push(ie); else ex.expenses[ei] = ie;
-    });
-    ex.title = incoming.title;
-    ex.membersInput = incoming.membersInput;
-    ex.mainCurrency = incoming.mainCurrency;
-    if (incoming.selectedCurrencies) ex.selectedCurrencies = incoming.selectedCurrencies;
-    if (incoming.budget !== undefined) ex.budget = incoming.budget;
-    ex.activity = toArray(incoming.activity).sort((a,b) => b.ts - a.ts);
-    ex.places = toArray(incoming.places);
-    ex.settlements = toArray(incoming.settlements);
-    allTrips[idx] = ex;
-  } else {
-    incoming.expenses = toArray(incoming.expenses);
-    incoming.activity = toArray(incoming.activity).sort((a,b) => b.ts - a.ts);
-    incoming.places = toArray(incoming.places);
-    incoming.settlements = toArray(incoming.settlements);
-    allTrips.push(incoming);
-  }
-}
-
-/* ── IDENTITY & USER MANAGEMENT ── */
-function showIdModal(canCancel) {
-  document.getElementById('name-inp').value = myName || '';
-  document.getElementById('name-cancel').style.display = canCancel ? 'flex' : 'none';
-  document.getElementById('id-modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('name-inp').focus(), 80);
-}
-
-function closeIdModal() { document.getElementById('id-modal').classList.add('hidden'); }
-
-function editIdentity() { showIdModal(true); }
-
-function saveIdentity() {
-  const val = document.getElementById('name-inp').value.trim();
-  if (!val) { showToast("Please enter a name."); return; }
-  myName = val;
-  localStorage.setItem("TripSplit_MyName", myName);
-  updateDashChip();
-  closeIdModal();
-  showToast(`Hi, ${myName}!`);
-  if (window.__pendingJoinId) {
-    autoJoinTrip(window.__pendingJoinId);
-    delete window.__pendingJoinId;
-  }
-  if (activeTripId) {
-    renderTrip();
-    if (FB_ON && db) pushFB(allTrips.find(t => t.id === activeTripId));
-  }
-}
-
-function updateDashChip() {
-  const nameEl = document.getElementById('d-name');
-  const avEl = document.getElementById('d-avatar');
-  if (nameEl) nameEl.innerText = myName || "Set your name";
-  if (avEl) avEl.innerText = myName ? myName.charAt(0).toUpperCase() : "?";
-}
-
-/* ── DASHBOARD & TRIP MANAGEMENT ── */
-function renderDash() {
-  document.getElementById('dash-view').classList.remove('hidden');
-  document.getElementById('trip-view').classList.add('hidden');
-  activeTripId = null;
-  if (tripListener) { tripListener.off(); tripListener = null; }
-
-  const grid = document.getElementById('trips-grid');
-  if (!allTrips.length) {
-    grid.innerHTML = `<div class="empty"><div class="ico">✈️</div><p>No trips yet. Create one above!</p></div>`;
-    return;
-  }
-
-  grid.innerHTML = allTrips.map(t => {
-    const members = (t.membersInput || '').split(',').map(s => s.trim()).filter(Boolean);
-    const totalSpent = (t.expenses || []).reduce((sum, e) => sum + (e.convertedAmt || e.amount || 0), 0);
-    const expCount = (t.expenses || []).length;
-    return `
-      <div class="trip-card" onclick="openTrip('${t.id}')">
-        <div class="card-acts">
-          <button class="icon-btn del" onclick="deleteTrip('${t.id}', event)">🗑️</button>
-        </div>
-        <div class="tc-inner">
-          <div class="tc-icon">🗺️</div>
-          <div class="tc-info">
-            <h2>${escapeHtml(t.title || 'Untitled Trip')}</h2>
-            <div class="tc-meta">${expCount} expense${expCount === 1 ? '' : 's'} · ${members.length} member${members.length === 1 ? '' : 's'}</div>
-            <div class="tc-total">${(t.mainCurrency || 'MYR')} ${totalSpent.toFixed(2)}</div>
-            <div class="tc-pips">
-              ${members.slice(0, 4).map(m => `<span class="pip">${escapeHtml(m)}</span>`).join('')}
-              ${members.length > 4 ? `<span class="pip">+${members.length - 4}</span>` : ''}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function createTrip() {
-  const id = 'trip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-  const newTrip = {
-    id: id,
-    title: 'New Trip',
-    mainCurrency: 'MYR',
-    selectedCurrencies: ['MYR', 'SGD', 'USD'],
-    membersInput: myName || 'Me',
-    expenses: [],
-    places: [],
-    settlements: [],
-    activity: [{ text: 'Trip created', ts: Date.now() }],
-    budget: 0
-  };
-  allTrips.unshift(newTrip);
-  saveLocal();
-  if (FB_ON && db) pushFB(newTrip);
-  openTrip(id);
-}
-
-function openTrip(id) {
-  activeTripId = id;
-  const trip = allTrips.find(t => t.id === id);
-  if (!trip) return;
-
-  document.getElementById('dash-view').classList.add('hidden');
-  document.getElementById('trip-view').classList.remove('hidden');
-  document.getElementById('trip-title').value = trip.title || '';
-  document.getElementById('main-curr').value = trip.mainCurrency || 'MYR';
-
-  const currChips = document.querySelectorAll('#curr-chips .cc');
-  const selCurrs = trip.selectedCurrencies || ['MYR'];
-  currChips.forEach(lbl => {
-    const chk = lbl.querySelector('input');
-    if (selCurrs.includes(chk.value)) { chk.checked = true; lbl.classList.add('on'); }
-    else { chk.checked = false; lbl.classList.remove('on'); }
-  });
-
-  renderMembersList(getMembers(trip));
-  fetchRates();
+/* ── INITIALIZATION ── */
+window.onload = function() {
+  loadFromStorage();
+  renderCategories();
   renderTrip();
+};
 
-  if (FB_ON && db) listenFB(id); else pill('local');
-}
-
-function closeTrip() {
-  saveLocal();
-  renderDash();
-}
-
-function deleteTrip(id, e) {
-  if (e) e.stopPropagation();
-  if (!confirm("Are you sure you want to delete this trip?")) return;
-  allTrips = allTrips.filter(t => t.id !== id);
-  saveLocal();
-  if (FB_ON && db) db.ref('trips/' + id).remove();
-  renderDash();
-  showToast("Trip deleted");
-}
-
-/* ── DATA SYNC & PERSISTENCE ── */
-function saveLocal() {
-  try { localStorage.setItem(LS, JSON.stringify(allTrips)); } catch(e){}
-}
-
-function qSave() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    if (!activeTripId) return;
-    const trip = allTrips.find(t => t.id === activeTripId);
-    if (!trip) return;
-
-    trip.title = document.getElementById('trip-title').value.trim() || 'Untitled Trip';
-    trip.mainCurrency = document.getElementById('main-curr').value;
-
-    const selCurrs = [];
-    document.querySelectorAll('#curr-chips .cc input:checked').forEach(c => selCurrs.push(c.value));
-    trip.selectedCurrencies = selCurrs;
-    trip.membersInput = getMembersFromList().join(', ');
-
-    saveLocal();
+/* ── MEMBER MANAGEMENT (Requirement 3) ── */
+function addMember() {
+  const input = document.getElementById('new-member-input');
+  const name = input.value.trim();
+  if (name && !membersList.includes(name)) {
+    membersList.push(name);
+    input.value = '';
     renderTrip();
-    if (FB_ON && db) pushFB(trip);
-  }, 400);
-}
-
-function pushFB(trip) {
-  if (!FB_ON || !db || !trip) return;
-  lastWriteTs = Date.now();
-  db.ref('trips/' + trip.id).set(trip).catch(err => console.error("FB error", err));
-}
-
-function listenFB(tripId) {
-  if (tripListener) tripListener.off();
-  tripListener = db.ref('trips/' + tripId);
-  tripListener.on('value', snap => {
-    const val = snap.val();
-    if (!val || Date.now() - lastWriteTs < 1200) return;
-    mergeTripLocally(val);
-    saveLocal();
-    renderTrip();
-    pill('live');
-  });
-}
-
-function pill(status) {
-  const el = document.getElementById('sync-pill');
-  if (!el) return;
-  if (status === 'live' || fbOnline) {
-    el.className = 'nav-pill pill-live';
-    el.innerHTML = '🟢 Live';
-  } else {
-    el.className = 'nav-pill pill-local';
-    el.innerHTML = '💾 Local';
   }
 }
 
-/* ── MEMBERS LIST ── */
-function getMembers(trip) {
-  if (!trip) return [];
-  return (trip.membersInput || '').split(',').map(s => s.trim()).filter(Boolean);
-}
-
-function getMembersFromList() {
-  const inputs = document.querySelectorAll('#members-list .member-line input');
-  const members = [];
-  inputs.forEach(inp => {
-    const val = inp.value.trim();
-    if (val && !members.includes(val)) members.push(val);
-  });
-  return members;
-}
-
-function renderMembersList(members) {
-  const container = document.getElementById('members-list');
-  container.innerHTML = '';
-  if (!members || !members.length) members = [myName || 'Me'];
-  members.forEach(m => addMemberLine(m, false));
-}
-
-function addMemberLine(name = '', focus = true) {
-  const container = document.getElementById('members-list');
-  const num = container.children.length + 1;
-  const div = document.createElement('div');
-  div.className = 'member-line';
-  div.innerHTML = `
-    <div class="mnum">${num}</div>
-    <input type="text" value="${escapeHtml(name)}" placeholder="Member name" oninput="qSave()">
-    <button type="button" class="m-remove" onclick="removeMemberLine(this)">✕</button>
-  `;
-  container.appendChild(div);
-  if (focus) div.querySelector('input').focus();
-}
-
-function removeMemberLine(btn) {
-  const line = btn.closest('.member-line');
-  const container = document.getElementById('members-list');
-  if (container.children.length <= 1) { showToast("At least 1 member required"); return; }
-  line.classList.add('leaving');
-  setTimeout(() => {
-    line.remove();
-    Array.from(container.children).forEach((child, i) => child.querySelector('.mnum').innerText = i + 1);
-    qSave();
-  }, 220);
-}
-
-/* ── CURRENCY & RATES ── */
-function toggleCC(label) {
-  const chk = label.querySelector('input');
-  chk.checked = !chk.checked;
-  label.classList.toggle('on', chk.checked);
-  qSave();
-}
-
-async function fetchRates() {
-  const base = document.getElementById('main-curr').value || 'MYR';
-  const apiStatus = document.getElementById('api-status');
-  apiStatus.innerHTML = `<span style="color:#d97706">⬤</span> Fetching rates…`;
-  try {
-    const res = await fetch(`https://open.er-api.com/v6/latest/${base}`);
-    const data = await res.json();
-    if (data && data.rates) {
-      rates = data.rates;
-      apiStatus.innerHTML = `<span style="color:var(--grn)">⬤</span> Exchange rates updated`;
-    } else throw new Error();
-  } catch(e) {
-    rates = { MYR: 1, SGD: 0.3, USD: 0.22, EUR: 0.2, GBP: 0.17, AUD: 0.34, JPY: 33, THB: 7.8, IDR: 3500 };
-    apiStatus.innerHTML = `<span style="color:var(--ink3)">⬤</span> Offline rates loaded`;
-  }
-  updateExpCurrDropdown();
+function removeMember(name) {
+  membersList = membersList.filter(m => m !== name);
   renderTrip();
 }
 
-function updateExpCurrDropdown() {
-  const sel = document.getElementById('exp-curr');
-  const activeTrip = allTrips.find(t => t.id === activeTripId);
-  const currs = (activeTrip && activeTrip.selectedCurrencies) ? activeTrip.selectedCurrencies : ['MYR', 'SGD', 'USD'];
-  const currentVal = sel.value || (activeTrip ? activeTrip.mainCurrency : 'MYR');
-  sel.innerHTML = currs.map(c => `<option value="${c}" ${c === currentVal ? 'selected' : ''}>${c}</option>`).join('');
-}
-
-/* ── NAVIGATION TABS ── */
-function switchTab(tab) {
-  ['expenses', 'places', 'balances'].forEach(t => {
-    document.getElementById('panel-' + t).style.display = (t === tab) ? 'block' : 'none';
-    document.getElementById('mtab-' + t).classList.toggle('act', t === tab);
-  });
-}
-
-/* ── SPLIT LOGIC & EXPENSE CREATION ── */
-function setSplitMode(mode, btn) {
-  splitMode = mode;
-  document.querySelectorAll('.split-tabs .stab').forEach(b => b.classList.remove('act'));
-  if (btn) btn.classList.add('act');
-
-  document.getElementById('split-equal-ui').style.display = (mode === 'equal') ? 'block' : 'none';
-  document.getElementById('split-custom-ui').style.display = (['unequal', 'percent', 'shares', 'adjust'].includes(mode)) ? 'block' : 'none';
-  document.getElementById('split-items-ui').style.display = (mode === 'items') ? 'block' : 'none';
-
-  renderSplitUI();
-}
-
-function renderSplitUI() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  const members = getMembers(trip);
-
-  if (splitMode === 'equal') {
-    document.getElementById('split-chips').innerHTML = members.map(m => `
-      <label class="chip on" onclick="this.classList.toggle('on');">
-        <input type="checkbox" value="${escapeHtml(m)}" checked>
-        <span class="ck">✓</span> ${escapeHtml(m)}
-      </label>
-    `).join('');
-  } else if (['unequal', 'percent', 'shares', 'adjust'].includes(splitMode)) {
-    const lbl = document.getElementById('custom-lbl');
-    if (splitMode === 'unequal') lbl.innerText = "Exact amount per person";
-    else if (splitMode === 'percent') lbl.innerText = "Percentage (%) per person";
-    else if (splitMode === 'shares') lbl.innerText = "Number of shares per person";
-    else if (splitMode === 'adjust') lbl.innerText = "Extra (+/-) adjustment per person";
-
-    document.getElementById('split-custom-grid').innerHTML = members.map(m => `
-      <div class="split-row">
-        <span class="member-name">${escapeHtml(m)}</span>
-        <input type="number" class="split-val-inp" data-member="${escapeHtml(m)}" placeholder="0" min="0" step="any" oninput="validateSplitTotal()">
-        <span class="unit">${splitMode === 'percent' ? '%' : (splitMode === 'shares' ? 'sh' : '')}</span>
-      </div>
-    `).join('');
-    validateSplitTotal();
-  } else if (splitMode === 'items') {
-    renderItemsGrid();
-  }
-}
-
-function distributeEvenly() {
-  const amt = parseFloat(document.getElementById('exp-amt').value) || 0;
-  const inputs = document.querySelectorAll('.split-val-inp');
-  if (!inputs.length) return;
-
-  if (splitMode === 'equal' || splitMode === 'unequal') {
-    const each = (amt / inputs.length).toFixed(2);
-    inputs.forEach(inp => inp.value = each);
-  } else if (splitMode === 'percent') {
-    const each = (100 / inputs.length).toFixed(1);
-    inputs.forEach(inp => inp.value = each);
-  } else if (splitMode === 'shares') {
-    inputs.forEach(inp => inp.value = 1);
-  } else if (splitMode === 'adjust') {
-    inputs.forEach(inp => inp.value = 0);
-  }
-  validateSplitTotal();
-}
-
-function validateSplitTotal() {
-  const totalRow = document.getElementById('split-total-row');
-  totalRow.style.display = 'flex';
-  const amt = parseFloat(document.getElementById('exp-amt').value) || 0;
-  const inputs = document.querySelectorAll('.split-val-inp');
-  let sum = 0;
-  inputs.forEach(inp => sum += (parseFloat(inp.value) || 0));
-
-  if (splitMode === 'unequal') {
-    const diff = amt - sum;
-    if (Math.abs(diff) < 0.01) {
-      totalRow.className = 'split-total-row split-ok';
-      totalRow.innerHTML = `<span>Total: ${sum.toFixed(2)}</span><span>Exact match! ✓</span>`;
-    } else {
-      totalRow.className = 'split-total-row split-warn';
-      totalRow.innerHTML = `<span>Total: ${sum.toFixed(2)}</span><span>Remaining: ${diff.toFixed(2)}</span>`;
-    }
-  } else if (splitMode === 'percent') {
-    totalRow.className = Math.abs(100 - sum) < 0.1 ? 'split-total-row split-ok' : 'split-total-row split-warn';
-    totalRow.innerHTML = `<span>Total: ${sum.toFixed(1)}%</span><span>${Math.abs(100 - sum) < 0.1 ? '100% Total ✓' : 'Must equal 100%'}</span>`;
-  } else {
-    totalRow.className = 'split-total-row split-ok';
-    totalRow.innerHTML = `<span>Shares & Adjustments Configured</span>`;
-  }
-}
-
-function onAmountChange() {
-  if (splitMode !== 'equal') validateSplitTotal();
-}
-
-/* Itemized Splitting */
-function addItemRow() {
-  itemIdCounter++;
-  currentItems.push({ id: itemIdCounter, name: '', amount: 0, members: [] });
-  renderItemsGrid();
-}
-
-function renderItemsGrid() {
-  const container = document.getElementById('items-grid');
-  const trip = allTrips.find(t => t.id === activeTripId);
-  const members = getMembers(trip);
-
-  if (!currentItems.length) addItemRow();
-
-  container.innerHTML = currentItems.map((item, idx) => `
-    <div class="item-row">
-      <input type="text" class="item-name-inp" placeholder="Item ${idx + 1}" value="${escapeHtml(item.name)}" onchange="currentItems[${idx}].name = this.value">
-      <input type="number" class="item-amt-inp" placeholder="0.00" value="${item.amount || ''}" oninput="currentItems[${idx}].amount = parseFloat(this.value) || 0; validateItemsTotal()">
-      <button type="button" class="btn-xs del" onclick="currentItems.splice(${idx}, 1); renderItemsGrid();">✕</button>
-      <div class="item-assign">
-        ${members.map(m => `
-          <span class="item-chip ${item.members.includes(m) ? 'on' : ''}" onclick="toggleItemMember(${idx}, '${escapeHtml(m)}')">${escapeHtml(m)}</span>
-        `).join('')}
-      </div>
-    </div>
+function renderMemberTags() {
+  const container = document.getElementById('member-tags-container');
+  container.innerHTML = membersList.map(m => `
+    <span class="member-tag">
+      ${escapeHtml(m)}
+      <button class="btn-remove" onclick="removeMember('${escapeHtml(m)}')">✕</button>
+    </span>
   `).join('');
-  validateItemsTotal();
 }
 
-function toggleItemMember(itemIdx, member) {
-  const item = currentItems[itemIdx];
-  if (!item) return;
-  const mIdx = item.members.indexOf(member);
-  if (mIdx === -1) item.members.push(member); else item.members.splice(mIdx, 1);
-  renderItemsGrid();
+/* ── CATEGORY MODAL (Requirement 6) ── */
+function renderCategories() {
+  const select = document.getElementById('exp-cat');
+  select.innerHTML = categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
 }
 
-function validateItemsTotal() {
-  const totalRow = document.getElementById('items-total-row');
-  totalRow.style.display = 'flex';
-  const sum = currentItems.reduce((acc, it) => acc + (it.amount || 0), 0);
-  const expAmt = parseFloat(document.getElementById('exp-amt').value) || 0;
+function openCategoryModal() {
+  document.getElementById('cat-modal').style.display = 'flex';
+  document.getElementById('custom-cat-input').focus();
+}
 
-  if (expAmt > 0 && Math.abs(expAmt - sum) < 0.01) {
-    totalRow.className = 'split-total-row split-ok';
-    totalRow.innerHTML = `<span>Items total: ${sum.toFixed(2)}</span><span>Matches total! ✓</span>`;
-  } else {
-    totalRow.className = 'split-total-row split-warn';
-    totalRow.innerHTML = `<span>Items total: ${sum.toFixed(2)}</span><span>Expense total: ${expAmt.toFixed(2)}</span>`;
+function closeCategoryModal() {
+  document.getElementById('cat-modal').style.display = 'none';
+  document.getElementById('custom-cat-input').value = '';
+}
+
+function saveCustomCategory() {
+  const catInput = document.getElementById('custom-cat-input').value.trim();
+  if (catInput && !categories.includes(catInput)) {
+    categories.push(catInput);
+    renderCategories();
+    document.getElementById('exp-cat').value = catInput;
   }
-}
-
-/* Save Expense */
-function saveExpense() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-
-  const name = document.getElementById('exp-name').value.trim();
-  const cat = document.getElementById('exp-cat').value;
-  const amount = parseFloat(document.getElementById('exp-amt').value);
-  const curr = document.getElementById('exp-curr').value;
-  const payer = document.getElementById('exp-payer').value;
-  const note = document.getElementById('exp-note').value.trim();
-
-  if (!name) { showToast("Please enter description"); return; }
-  if (isNaN(amount) || amount <= 0) { showToast("Please enter valid amount"); return; }
-  if (!payer) { showToast("Please select who paid"); return; }
-
-  const members = getMembers(trip);
-  let splitDetails = {};
-
-  if (splitMode === 'equal') {
-    const selected = [];
-    document.querySelectorAll('#split-chips label.on input').forEach(c => selected.push(c.value));
-    if (!selected.length) { showToast("Select at least 1 person"); return; }
-    const share = amount / selected.length;
-    selected.forEach(m => splitDetails[m] = share);
-  } else if (['unequal', 'percent', 'shares', 'adjust'].includes(splitMode)) {
-    const vals = {};
-    let totalVal = 0;
-    document.querySelectorAll('.split-val-inp').forEach(inp => {
-      const m = inp.getAttribute('data-member');
-      const v = parseFloat(inp.value) || 0;
-      vals[m] = v;
-      totalVal += v;
-    });
-
-    if (splitMode === 'unequal') splitDetails = vals;
-    else if (splitMode === 'percent') members.forEach(m => splitDetails[m] = (amount * (vals[m] || 0)) / 100);
-    else if (splitMode === 'shares') {
-      if (totalVal <= 0) { showToast("Total shares must be > 0"); return; }
-      members.forEach(m => splitDetails[m] = (amount * (vals[m] || 0)) / totalVal);
-    } else if (splitMode === 'adjust') {
-      const baseShare = amount / members.length;
-      members.forEach(m => splitDetails[m] = baseShare + (vals[m] || 0));
-    }
-  } else if (splitMode === 'items') {
-    members.forEach(m => splitDetails[m] = 0);
-    currentItems.forEach(it => {
-      if (it.amount > 0 && it.members.length > 0) {
-        const perPerson = it.amount / it.members.length;
-        it.members.forEach(m => splitDetails[m] = (splitDetails[m] || 0) + perPerson);
-      }
-    });
-  }
-
-  const rate = rates[curr] || 1;
-  const baseRate = rates[trip.mainCurrency] || 1;
-  const convertedAmt = (curr === trip.mainCurrency) ? amount : (amount / rate) * baseRate;
-
-  const expenseObj = {
-    id: editingId || ('exp_' + Date.now()),
-    name, category: cat, amount, currency: curr, convertedAmt, payer, note, splitMode, splitDetails, timestamp: Date.now()
-  };
-
-  if (editingId) {
-    const idx = trip.expenses.findIndex(e => e.id === editingId);
-    if (idx !== -1) trip.expenses[idx] = expenseObj;
-    editingId = null;
-    document.getElementById('form-title').innerText = "Add Expense";
-    document.getElementById('save-btn').innerText = "Add Expense";
-    document.getElementById('cancel-edit-btn').style.display = 'none';
-  } else {
-    trip.expenses.unshift(expenseObj);
-    logActivity(`${payer} added "${name}" (${curr} ${amount.toFixed(2)})`);
-  }
-
-  document.getElementById('exp-name').value = '';
-  document.getElementById('exp-amt').value = '';
-  document.getElementById('exp-note').value = '';
-  currentItems = [];
-
-  saveLocal();
-  renderTrip();
-  if (FB_ON && db) pushFB(trip);
-  showToast("Expense saved!");
-}
-
-function editExpense(id) {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-  const exp = trip.expenses.find(e => e.id === id);
-  if (!exp) return;
-
-  editingId = id;
-  document.getElementById('form-title').innerText = "Edit Expense";
-  document.getElementById('save-btn').innerText = "Update Expense";
-  document.getElementById('cancel-edit-btn').style.display = 'inline-block';
-
-  document.getElementById('exp-name').value = exp.name;
-  document.getElementById('exp-cat').value = exp.category || 'misc';
-  document.getElementById('exp-amt').value = exp.amount;
-  document.getElementById('exp-curr').value = exp.currency;
-  document.getElementById('exp-payer').value = exp.payer;
-  document.getElementById('exp-note').value = exp.note || '';
-
-  setSplitMode(exp.splitMode || 'equal');
-  window.scrollTo({ top: 150, behavior: 'smooth' });
-}
-
-function cancelEdit() {
-  editingId = null;
-  document.getElementById('form-title').innerText = "Add Expense";
-  document.getElementById('save-btn').innerText = "Add Expense";
-  document.getElementById('cancel-edit-btn').style.display = 'none';
-  document.getElementById('exp-name').value = '';
-  document.getElementById('exp-amt').value = '';
-  document.getElementById('exp-note').value = '';
-}
-
-function deleteExpense(id) {
-  if (!confirm("Delete this expense?")) return;
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-  const exp = trip.expenses.find(e => e.id === id);
-  if (exp) logActivity(`Deleted "${exp.name}"`);
-  trip.expenses = trip.expenses.filter(e => e.id !== id);
-  saveLocal();
-  renderTrip();
-  if (FB_ON && db) pushFB(trip);
-  showToast("Expense deleted");
+  closeCategoryModal();
 }
 
 /* ── MAIN RENDER ENGINE ── */
@@ -1245,447 +478,387 @@ function renderTrip() {
   const trip = allTrips.find(t => t.id === activeTripId);
   if (!trip) return;
 
-  const members = getMembers(trip);
+  trip.mainCurrency = document.getElementById('trip-curr').value;
+
+  renderMemberTags();
+
+  // Populate Payer Dropdown
   const payerSel = document.getElementById('exp-payer');
-  const currPayer = payerSel.value || myName;
-  payerSel.innerHTML = members.map(m => `<option value="${escapeHtml(m)}" ${m === currPayer ? 'selected' : ''}>${escapeHtml(m)}</option>`).join('');
+  const currPayer = payerSel.value || membersList[0] || '';
+  payerSel.innerHTML = membersList.map(m => `
+    <option value="${escapeHtml(m)}" ${m === currPayer ? 'selected' : ''}>${escapeHtml(m)}</option>
+  `).join('');
 
-  updateExpCurrDropdown();
+  // Update Split Chips
+  renderSplitUI();
 
-  const totalSpent = (trip.expenses || []).reduce((sum, e) => sum + (e.convertedAmt || e.amount || 0), 0);
+  // Total Spending
+  const totalSpent = (trip.expenses || []).reduce((sum, e) => sum + (e.amount || 0), 0);
   document.getElementById('total-val').innerText = totalSpent.toFixed(2);
   document.getElementById('total-curr').innerText = trip.mainCurrency || 'MYR';
 
-  renderExpenses();
-  renderBreakdown();
-  renderMySummary();
-  renderBudget();
-  renderPlaces();
-  renderBalances();
-  renderActivity();
-  renderOweStrip();
+  // Render Sub-sections
+  renderExpenses();          // Req 4: First
+  renderCategoryAnalytics(); // Req 4: Second (New)
+  renderBalances();          // Req 2: Clear debt reasons with italics
+  renderPlaces();            // Req 5: Maps link
+
+  saveToStorage();
 }
 
-function renderExpenses() {
+/* ── BEAUTIFIED SPLIT UI (Requirement 1) ── */
+function renderSplitUI(forceRebuild = false) {
+  if (splitMode === 'equal') {
+    const container = document.getElementById('split-chips');
+    if (!container.children.length || forceRebuild) {
+      container.innerHTML = membersList.map(m => `
+        <label class="chip on" onclick="toggleChip(this)">
+          <input type="checkbox" value="${escapeHtml(m)}" checked>
+          <span>✓</span> ${escapeHtml(m)}
+        </label>
+      `).join('');
+    }
+  } else if (['unequal', 'percent', 'shares'].includes(splitMode)) {
+    const lbl = document.getElementById('custom-lbl');
+    if (splitMode === 'unequal') lbl.innerText = "Exact amount per person";
+    else if (splitMode === 'percent') lbl.innerText = "Percentage (%) per person";
+    else if (splitMode === 'shares') lbl.innerText = "Number of shares per person";
+
+    document.getElementById('split-custom-grid').innerHTML = membersList.map(m => `
+      <div class="split-row">
+        <span>${escapeHtml(m)}</span>
+        <div>
+          <input type="number" class="split-val-inp" data-member="${escapeHtml(m)}" placeholder="0.00" min="0" step="any">
+          <span class="unit">${splitMode === 'percent' ? '%' : (splitMode === 'shares' ? 'sh' : '')}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function toggleChip(chipLabel) {
+  const checkbox = chipLabel.querySelector('input[type="checkbox"]');
+  checkbox.checked = !checkbox.checked;
+  chipLabel.classList.toggle('on', checkbox.checked);
+  chipLabel.querySelector('span').innerText = checkbox.checked ? '✓' : '';
+}
+
+function setSplitMode(mode, btn) {
+  splitMode = mode;
+  document.querySelectorAll('.split-tabs .stab').forEach(b => b.classList.remove('act'));
+  if (btn) btn.classList.add('act');
+
+  document.getElementById('split-equal-ui').style.display = (mode === 'equal') ? 'block' : 'none';
+  document.getElementById('split-custom-ui').style.display = (['unequal', 'percent', 'shares'].includes(mode)) ? 'block' : 'none';
+
+  renderSplitUI(true);
+}
+
+/* ── ADD EXPENSE LOGIC ── */
+function addExpense() {
   const trip = allTrips.find(t => t.id === activeTripId);
-  const container = document.getElementById('exp-list');
-  if (!trip || !trip.expenses || !trip.expenses.length) {
-    container.innerHTML = `<div class="empty"><div class="ico">💸</div><p>No expenses recorded yet.</p></div>`;
+  const title = document.getElementById('exp-title').value.trim() || 'General Expense';
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const payer = document.getElementById('exp-payer').value;
+  const category = document.getElementById('exp-cat').value;
+
+  if (isNaN(amount) || amount <= 0) {
+    alert("Please enter a valid amount greater than 0.");
     return;
   }
 
-  container.innerHTML = trip.expenses.map(e => `
-    <div class="exp-item">
-      <div class="exp-icon">${getCatIcon(e.category)}</div>
-      <div class="exp-body">
-        <div class="exp-name">${escapeHtml(e.name)}</div>
-        <span class="exp-cat cat-${e.category}">${e.category.toUpperCase()}</span>
-        <div class="exp-meta">Paid by <strong>${escapeHtml(e.payer)}</strong> ${e.note ? '· ' + escapeHtml(e.note) : ''}</div>
-        <div class="exp-acts">
-          <button class="btn-xs" onclick="editExpense('${e.id}')">✏️ Edit</button>
-          <button class="btn-xs del" onclick="deleteExpense('${e.id}')">🗑️ Del</button>
-        </div>
+  let splits = {};
+
+  if (splitMode === 'equal') {
+    const selectedChips = Array.from(document.querySelectorAll('#split-chips input[type="checkbox"]:checked'));
+    const selectedMembers = selectedChips.map(c => c.value);
+
+    if (selectedMembers.length === 0) {
+      alert("Please select at least 1 person to split with.");
+      return;
+    }
+
+    const share = amount / selectedMembers.length;
+    selectedMembers.forEach(m => { splits[m] = share; });
+
+  } else if (splitMode === 'unequal') {
+    const inputs = document.querySelectorAll('#split-custom-grid .split-val-inp');
+    inputs.forEach(inp => {
+      const val = parseFloat(inp.value) || 0;
+      if (val > 0) splits[inp.dataset.member] = val;
+    });
+  } else if (splitMode === 'percent') {
+    const inputs = document.querySelectorAll('#split-custom-grid .split-val-inp');
+    inputs.forEach(inp => {
+      const pct = parseFloat(inp.value) || 0;
+      if (pct > 0) splits[inp.dataset.member] = (amount * pct) / 100;
+    });
+  } else if (splitMode === 'shares') {
+    const inputs = document.querySelectorAll('#split-custom-grid .split-val-inp');
+    let totalShares = 0;
+    inputs.forEach(inp => { totalShares += (parseFloat(inp.value) || 0); });
+    
+    if (totalShares > 0) {
+      inputs.forEach(inp => {
+        const sh = parseFloat(inp.value) || 0;
+        if (sh > 0) splits[inp.dataset.member] = (amount * sh) / totalShares;
+      });
+    }
+  }
+
+  const newExpense = {
+    id: 'exp-' + Date.now(),
+    title,
+    amount,
+    payer,
+    category,
+    splits,
+    splitMode,
+    timestamp: new Date().toISOString()
+  };
+
+  trip.expenses.push(newExpense);
+
+  // Reset Input fields to 0.00
+  document.getElementById('exp-title').value = '';
+  document.getElementById('exp-amount').value = '0.00';
+  
+  renderTrip();
+}
+
+/* ── REQUIREMENT 4: EXPENSES FIRST ── */
+function renderExpenses() {
+  const trip = allTrips.find(t => t.id === activeTripId);
+  const container = document.getElementById('expense-list');
+
+  if (!trip.expenses || trip.expenses.length === 0) {
+    container.innerHTML = `<p class="subtitle">No expenses recorded yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = trip.expenses.slice().reverse().map(e => `
+    <div class="list-item">
+      <div>
+        <strong>${escapeHtml(e.title)}</strong><br>
+        <span class="subtitle">Paid by ${escapeHtml(e.payer)} • <em>${escapeHtml(e.category)}</em></span>
       </div>
-      <div class="exp-right">
-        <div class="exp-amt">${e.currency} ${(e.amount || 0).toFixed(2)}</div>
-        ${e.currency !== trip.mainCurrency ? `<div class="exp-conv">≈ ${trip.mainCurrency} ${(e.convertedAmt || 0).toFixed(2)}</div>` : ''}
+      <div>
+        <strong>${trip.mainCurrency} ${e.amount.toFixed(2)}</strong>
       </div>
     </div>
   `).join('');
 }
 
-function getCatIcon(cat) {
-  const icons = { food: '🍜', drink: '🥂', transport: '🚕', hotel: '🏨', shop: '🛍️', activity: '🎟️', misc: '🧾' };
-  return icons[cat] || '🧾';
-}
-
-function renderBreakdown() {
+/* ── REQUIREMENT 4: NEW CATEGORY SPEND ANALYTICS ── */
+function renderCategoryAnalytics() {
   const trip = allTrips.find(t => t.id === activeTripId);
-  const container = document.getElementById('breakdown-card');
-  if (!trip) return;
+  const container = document.getElementById('category-analytics');
 
-  const members = getMembers(trip);
-  const spending = {};
-  members.forEach(m => spending[m] = 0);
+  if (!trip.expenses || trip.expenses.length === 0) {
+    container.innerHTML = `<p class="subtitle">No data available yet.</p>`;
+    return;
+  }
 
-  (trip.expenses || []).forEach(e => {
-    spending[e.payer] = (spending[e.payer] || 0) + (e.convertedAmt || e.amount || 0);
+  let catTotals = {};
+  let totalSpent = 0;
+
+  trip.expenses.forEach(e => {
+    catTotals[e.category] = (catTotals[e.category] || 0) + e.amount;
+    totalSpent += e.amount;
   });
 
-  const maxSpent = Math.max(...Object.values(spending), 1);
-
-  container.innerHTML = members.map(m => {
-    const amt = spending[m] || 0;
-    const pct = Math.min((amt / maxSpent) * 100, 100);
+  container.innerHTML = Object.keys(catTotals).map(cat => {
+    const amt = catTotals[cat];
+    const pct = totalSpent > 0 ? ((amt / totalSpent) * 100).toFixed(0) : 0;
     return `
-      <div class="breakdown-row">
-        <div class="br-name">${escapeHtml(m)}</div>
-        <div class="br-bar-wrap"><div class="br-bar" style="width:${pct}%"></div></div>
-        <div class="br-amt">${trip.mainCurrency} ${amt.toFixed(2)}</div>
+      <div class="list-item">
+        <div>
+          <strong>${escapeHtml(cat)}</strong><br>
+          <span class="subtitle">${pct}% of total spending</span>
+        </div>
+        <div>
+          <strong>${trip.mainCurrency} ${amt.toFixed(2)}</strong>
+        </div>
       </div>
     `;
   }).join('');
 }
 
-function renderMySummary() {
-  const card = document.getElementById('my-summary-card');
-  if (!myName) { card.style.display = 'none'; return; }
-  card.style.display = 'block';
-  document.getElementById('my-summary-name').innerText = myName;
-
+/* ── REQUIREMENT 2: BALANCES WITH NON-BOLD ITALIC ITEM DESCRIPTIONS ── */
+function renderBalances() {
   const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
+  const container = document.getElementById('balances-list');
 
-  let paid = 0, share = 0;
-  (trip.expenses || []).forEach(e => {
-    const baseAmt = e.convertedAmt || e.amount || 0;
-    if (e.payer === myName) paid += baseAmt;
-    if (e.splitDetails && e.splitDetails[myName] !== undefined) {
-      const expRate = rates[e.currency] || 1;
-      const baseRate = rates[trip.mainCurrency] || 1;
-      const myShareInExpCurr = e.splitDetails[myName];
-      share += (e.currency === trip.mainCurrency) ? myShareInExpCurr : (myShareInExpCurr / expRate) * baseRate;
-    }
+  if (!trip.expenses || trip.expenses.length === 0) {
+    container.innerHTML = `<p class="subtitle">Balances are clean! No debts recorded.</p>`;
+    return;
+  }
+
+  // Calculate pairwise debts and track items causing the debt
+  let pairwise = {}; // { "Debtor->Creditor": { amount: 0, items: [] } }
+
+  trip.expenses.forEach(e => {
+    const payer = e.payer;
+    if (!e.splits) return;
+
+    Object.keys(e.splits).forEach(member => {
+      if (member !== payer) {
+        const owedAmount = e.splits[member];
+        if (owedAmount > 0) {
+          const key = `${member}->${payer}`;
+          if (!pairwise[key]) pairwise[key] = { amount: 0, items: [] };
+          pairwise[key].amount += owedAmount;
+          if (!pairwise[key].items.includes(e.title)) {
+            pairwise[key].items.push(e.title);
+          }
+        }
+      }
+    });
   });
 
-  const net = paid - share;
-  document.getElementById('ms-paid').innerText = paid.toFixed(2);
-  document.getElementById('ms-share').innerText = share.toFixed(2);
+  // Simplify net debts between pairs
+  let netDebts = [];
+  let processedPairs = new Set();
 
-  if (net >= 0) {
-    document.getElementById('ms-owed').innerText = net.toFixed(2);
-    document.getElementById('ms-owe').innerText = '0.00';
-  } else {
-    document.getElementById('ms-owed').innerText = '0.00';
-    document.getElementById('ms-owe').innerText = Math.abs(net).toFixed(2);
-  }
-}
+  Object.keys(pairwise).forEach(key => {
+    if (processedPairs.has(key)) return;
 
-/* ── BUDGET & STICKY STRIP ── */
-function openBudgetModal() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-  document.getElementById('bud-curr-lbl').innerText = trip.mainCurrency;
-  document.getElementById('bud-inp').value = trip.budget || '';
-  document.getElementById('budget-modal').classList.remove('hidden');
-}
+    const [debtor, creditor] = key.split('->');
+    const reverseKey = `${creditor}->${debtor}`;
 
-function saveBudget() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-  trip.budget = parseFloat(document.getElementById('bud-inp').value) || 0;
-  closeModal('budget-modal');
-  saveLocal();
-  renderTrip();
-  if (FB_ON && db) pushFB(trip);
-}
+    const forward = pairwise[key] || { amount: 0, items: [] };
+    const reverse = pairwise[reverseKey] || { amount: 0, items: [] };
 
-function renderBudget() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  const card = document.getElementById('budget-card');
-  if (!trip || !trip.budget) { card.style.display = 'none'; return; }
+    processedPairs.add(key);
+    processedPairs.add(reverseKey);
 
-  card.style.display = 'block';
-  const totalSpent = (trip.expenses || []).reduce((sum, e) => sum + (e.convertedAmt || e.amount || 0), 0);
-  const left = trip.budget - totalSpent;
-  const pct = Math.min((totalSpent / trip.budget) * 100, 100);
+    const diff = forward.amount - reverse.amount;
 
-  const fill = document.getElementById('bud-fill');
-  fill.style.width = pct + '%';
-  fill.className = pct > 100 ? 'budget-fill over' : (pct > 85 ? 'budget-fill warn' : 'budget-fill');
-
-  document.getElementById('bud-spent-lbl').innerText = `${totalSpent.toFixed(2)} spent`;
-  document.getElementById('bud-left-lbl').innerText = left >= 0 ? `${left.toFixed(2)} left` : `${Math.abs(left).toFixed(2)} over`;
-}
-
-function renderOweStrip() {
-  const strip = document.getElementById('owe-strip');
-  if (!myName) { strip.className = 'owe-strip clear'; document.getElementById('os-main').innerText = "Set your name to track owes"; return; }
-
-  const balances = calculateBalances();
-  const myNet = balances[myName] || 0;
-
-  if (Math.abs(myNet) < 0.01) {
-    strip.className = 'owe-strip clear';
-    document.getElementById('os-main').innerText = "You're all settled up 🎉";
-  } else if (myNet > 0) {
-    strip.className = 'owe-strip owed';
-    document.getElementById('os-main').innerText = `You are owed ${myNet.toFixed(2)}`;
-  } else {
-    strip.className = 'owe-strip owe';
-    document.getElementById('os-main').innerText = `You owe ${Math.abs(myNet).toFixed(2)}`;
-  }
-}
-
-/* ── BALANCES & DEBT CALCULATIONS ── */
-function calculateBalances() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return {};
-
-  const members = getMembers(trip);
-  const net = {};
-  members.forEach(m => net[m] = 0);
-
-  (trip.expenses || []).forEach(e => {
-    const payer = e.payer;
-    const expRate = rates[e.currency] || 1;
-    const baseRate = rates[trip.mainCurrency] || 1;
-
-    if (e.splitDetails) {
-      Object.keys(e.splitDetails).forEach(m => {
-        const myShareInExpCurr = e.splitDetails[m] || 0;
-        const convertedShare = (e.currency === trip.mainCurrency) ? myShareInExpCurr : (myShareInExpCurr / expRate) * baseRate;
-        if (m !== payer) {
-          net[payer] = (net[payer] || 0) + convertedShare;
-          net[m] = (net[m] || 0) - convertedShare;
-        }
+    if (diff > 0) {
+      netDebts.push({
+        from: debtor,
+        to: creditor,
+        amount: diff,
+        items: forward.items
+      });
+    } else if (diff < 0) {
+      netDebts.push({
+        from: creditor,
+        to: debtor,
+        amount: Math.abs(diff),
+        items: reverse.items
       });
     }
   });
 
-  (trip.settlements || []).forEach(s => {
-    if (s.settled) {
-      net[s.from] = (net[s.from] || 0) + s.amount;
-      net[s.to] = (net[s.to] || 0) - s.amount;
-    }
-  });
-
-  return net;
-}
-
-function renderBalances() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  const container = document.getElementById('debts-box');
-  if (!trip) return;
-
-  const net = calculateBalances();
-  const debts = simplifyDebts(net);
-
-  if (!debts.length) {
-    container.innerHTML = `<div class="empty" style="padding:10px 0"><p>Everyone is settled up! 🎉</p></div>`;
+  if (netDebts.length === 0) {
+    container.innerHTML = `<p class="subtitle">All settled up!</p>`;
     return;
   }
 
-  container.innerHTML = debts.map(d => `
-    <div class="debt-item ${d.settled ? 'settled' : ''}">
-      <div class="debt-check" onclick="toggleSettlement('${d.from}', '${d.to}', ${d.amount})">
-        <input type="checkbox" class="debt-cb" ${d.settled ? 'checked' : ''}>
-        <div class="debt-names">
-          <span class="deb">${escapeHtml(d.from)}</span> owes <span class="cred">${escapeHtml(d.to)}</span>
+  container.innerHTML = netDebts.map(d => {
+    const itemsText = d.items.length ? d.items.join(', ') : 'Shared Expenses';
+    return `
+      <div class="list-item">
+        <div>
+          <span><strong>${escapeHtml(d.from)}</strong> owes <strong>${escapeHtml(d.to)}</strong></span>
+          <!-- Non-bold italic description note -->
+          <span class="debt-item-note">for <i>${escapeHtml(itemsText)}</i></span>
+        </div>
+        <div style="color: var(--danger); font-weight: bold;">
+          ${trip.mainCurrency} ${d.amount.toFixed(2)}
         </div>
       </div>
-      <div class="debt-amt">${trip.mainCurrency} ${d.amount.toFixed(2)}</div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-function simplifyDebts(netBalances) {
-  const debtors = [], creditors = [];
-  Object.keys(netBalances).forEach(m => {
-    const bal = netBalances[m];
-    if (bal < -0.01) debtors.push({ member: m, amount: -bal });
-    else if (bal > 0.01) creditors.push({ member: m, amount: bal });
-  });
-
-  const transactions = [];
-  let i = 0, j = 0;
-  while (i < debtors.length && j < creditors.length) {
-    const d = debtors[i], c = creditors[j];
-    const min = Math.min(d.amount, c.amount);
-
-    const trip = allTrips.find(t => t.id === activeTripId);
-    const isSettled = (trip.settlements || []).some(s => s.from === d.member && s.to === c.member && Math.abs(s.amount - min) < 0.01 && s.settled);
-
-    transactions.push({ from: d.member, to: c.member, amount: min, settled: isSettled });
-
-    d.amount -= min; c.amount -= min;
-    if (d.amount < 0.01) i++;
-    if (c.amount < 0.01) j++;
+/* ── REQUIREMENT 5: PLACES WITH GOOGLE MAPS LINK ── */
+function addPlace() {
+  const input = document.getElementById('place-input');
+  const place = input.value.trim();
+  if (place && !placesList.includes(place)) {
+    placesList.push(place);
+    input.value = '';
+    renderPlaces();
+    saveToStorage();
   }
-  return transactions;
 }
 
-function toggleSettlement(from, to, amount) {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-  if (!trip.settlements) trip.settlements = [];
-
-  const existingIdx = trip.settlements.findIndex(s => s.from === from && s.to === to);
-  if (existingIdx !== -1) trip.settlements[existingIdx].settled = !trip.settlements[existingIdx].settled;
-  else trip.settlements.push({ from, to, amount, settled: true });
-
-  logActivity(`${from} settled payment to ${to}`);
-  saveLocal();
-  renderTrip();
-  if (FB_ON && db) pushFB(trip);
-}
-
-function openSettle() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-  const debts = simplifyDebts(calculateBalances());
-  const ta = document.getElementById('settle-ta');
-
-  if (!debts.length) ta.value = `🎉 Trip "${trip.title}" is completely settled!`;
-  else {
-    let text = `✈️ Settlement Summary for "${trip.title}":\n\n`;
-    debts.forEach(d => text += `• ${d.from} ➔ ${d.to}: ${trip.mainCurrency} ${d.amount.toFixed(2)}\n`);
-    ta.value = text;
-  }
-  document.getElementById('settle-modal').classList.remove('hidden');
-}
-
-function copySettle() {
-  const ta = document.getElementById('settle-ta');
-  ta.select();
-  document.execCommand('copy');
-  showToast("Summary copied to clipboard!");
-  closeModal('settle-modal');
-}
-
-/* ── SHARING & MODALS ── */
-function openShareModal() {
-  const ta = document.getElementById('share-ta');
-  ta.value = window.location.origin + window.location.pathname + `?id=${activeTripId}&join=1`;
-  document.getElementById('share-modal').classList.remove('hidden');
-}
-
-function copyShareLink() {
-  const ta = document.getElementById('share-ta');
-  ta.select();
-  document.execCommand('copy');
-  showToast("Share link copied!");
-  closeModal('share-modal');
-}
-
-function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-/* ── PLACES TAB ── */
-function savePlace() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-
-  const name = document.getElementById('place-name').value.trim();
-  const cat = document.getElementById('place-cat').value;
-  const note = document.getElementById('place-note').value.trim();
-  const status = document.getElementById('place-status').value;
-
-  if (!name) { showToast("Enter place name"); return; }
-  if (!trip.places) trip.places = [];
-
-  const placeObj = { id: editingPlaceId || ('place_' + Date.now()), name, category: cat, note, status, addedBy: myName || 'Member', ts: Date.now() };
-
-  if (editingPlaceId) {
-    const idx = trip.places.findIndex(p => p.id === editingPlaceId);
-    if (idx !== -1) trip.places[idx] = placeObj;
-    editingPlaceId = null;
-  } else {
-    trip.places.unshift(placeObj);
-    logActivity(`Added place "${name}"`);
-  }
-
-  document.getElementById('place-name').value = '';
-  document.getElementById('place-note').value = '';
-
-  saveLocal();
+function removePlace(index) {
+  placesList.splice(index, 1);
   renderPlaces();
-  if (FB_ON && db) pushFB(trip);
-  showToast("Place saved!");
+  saveToStorage();
 }
 
 function renderPlaces() {
-  const trip = allTrips.find(t => t.id === activeTripId);
   const container = document.getElementById('places-list');
-  if (!trip || !trip.places || !trip.places.length) {
-    container.innerHTML = `<div class="empty"><div class="ico">📍</div><p>No saved places yet.</p></div>`;
+  if (placesList.length === 0) {
+    container.innerHTML = `<p class="subtitle">No places saved for this trip yet.</p>`;
     return;
   }
 
-  container.innerHTML = trip.places.map(p => `
-    <div class="place-item">
-      <div class="place-icon">${getCatIcon(p.category)}</div>
-      <div class="place-body">
-        <div class="place-name">${escapeHtml(p.name)}</div>
-        <span class="place-status ${p.status === 'visited' ? 'status-visited' : 'status-want'}">
-          ${p.status === 'visited' ? '✅ Visited' : '👀 Want to try'}
-        </span>
-        ${p.note ? `<div class="place-note">${escapeHtml(p.note)}</div>` : ''}
-        <div class="place-acts">
-          <button class="btn-xs" onclick="togglePlaceStatus('${p.id}')">${p.status === 'visited' ? 'Mark Unvisited' : 'Mark Visited'}</button>
-          <button class="btn-xs del" onclick="deletePlace('${p.id}')">🗑️ Del</button>
+  container.innerHTML = placesList.map((p, idx) => {
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p)}`;
+    return `
+      <div class="list-item">
+        <div>
+          <strong>📍 ${escapeHtml(p)}</strong><br>
+          <a class="map-link" href="${mapUrl}" target="_blank" rel="noopener">Open in Google Maps ↗</a>
         </div>
+        <button class="btn-remove" style="width:auto; border:none; background:none; cursor:pointer;" onclick="removePlace(${idx})">✕</button>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-function togglePlaceStatus(id) {
+/* ── REQUIREMENT 7: DATA ENGINE & EXPORT ── */
+function exportCSV() {
   const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip || !trip.places) return;
-  const place = trip.places.find(p => p.id === id);
-  if (place) {
-    place.status = (place.status === 'visited') ? 'want' : 'visited';
-    saveLocal();
-    renderPlaces();
-    if (FB_ON && db) pushFB(trip);
-  }
-}
-
-function deletePlace(id) {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip || !trip.places) return;
-  trip.places = trip.places.filter(p => p.id !== id);
-  saveLocal();
-  renderPlaces();
-  if (FB_ON && db) pushFB(trip);
-  showToast("Place removed");
-}
-
-/* ── ACTIVITY LOG & UTILITIES ── */
-function toggleActivity() {
-  document.getElementById('act-toggle').classList.toggle('open');
-  document.getElementById('act-panel').classList.toggle('open');
-}
-
-function logActivity(text) {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  if (!trip) return;
-  if (!trip.activity) trip.activity = [];
-  trip.activity.unshift({ text, ts: Date.now() });
-}
-
-function renderActivity() {
-  const trip = allTrips.find(t => t.id === activeTripId);
-  const container = document.getElementById('activity-log');
-  if (!trip || !trip.activity || !trip.activity.length) {
-    container.innerHTML = `<div class="empty" style="padding:8px 0"><p>No activity yet.</p></div>`;
+  if (!trip.expenses || trip.expenses.length === 0) {
+    alert("No expense data available to export.");
     return;
   }
 
-  container.innerHTML = trip.activity.slice(0, 15).map(a => `
-    <div class="activity-item">
-      <div class="act-dot"></div>
-      <div class="act-text">${escapeHtml(a.text)}</div>
-      <div class="act-time">${new Date(a.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-    </div>
-  `).join('');
+  let csv = "Description,Amount,Currency,PaidBy,Category,Date\n";
+  trip.expenses.forEach(e => {
+    csv += `"${e.title}",${e.amount},${trip.mainCurrency},"${e.payer}","${e.category}","${e.timestamp}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.setAttribute('download', `TripSplit_Export_${Date.now()}.csv`);
+  a.click();
 }
 
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.innerText = msg;
-  toast.classList.remove('gone');
-  setTimeout(() => toast.classList.add('gone'), 2200);
+function clearTripData() {
+  if (confirm("Are you sure you want to reset all expense data for this trip?")) {
+    allTrips = [{ id: 'default-trip', mainCurrency: 'MYR', expenses: [] }];
+    placesList = [];
+    renderTrip();
+  }
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+/* ── STORAGE ── */
+function saveToStorage() {
+  localStorage.setItem('tripsplit_data', JSON.stringify(allTrips));
+  localStorage.setItem('tripsplit_members', JSON.stringify(membersList));
+  localStorage.setItem('tripsplit_places', JSON.stringify(placesList));
+  localStorage.setItem('tripsplit_cats', JSON.stringify(categories));
+}
+
+function loadFromStorage() {
+  const savedTrips = localStorage.getItem('tripsplit_data');
+  const savedMembers = localStorage.getItem('tripsplit_members');
+  const savedPlaces = localStorage.getItem('tripsplit_places');
+  const savedCats = localStorage.getItem('tripsplit_cats');
+
+  if (savedTrips) try { allTrips = JSON.parse(savedTrips); } catch(e){}
+  if (savedMembers) try { membersList = JSON.parse(savedMembers); } catch(e){}
+  if (savedPlaces) try { placesList = JSON.parse(savedPlaces); } catch(e){}
+  if (savedCats) try { categories = JSON.parse(savedCats); } catch(e){}
 }
 </script>
 </body>
