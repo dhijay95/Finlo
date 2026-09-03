@@ -401,7 +401,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="mhandle"></div>
     <h2>Who are you?</h2>
     <p class="sub">This name is shown on your expenses. If this trip is shared, you'll be added as a member automatically.</p>
-    <div class="fg"><label class="fl">Your Name</label><input type="text" id="name-inp" placeholder="e.g., Bhagat" autocomplete="given-name"></div>
+    <div class="fg"><label class="fl">Your Name</label><input type="text" id="name-inp" placeholder="e.g., Alex" autocomplete="given-name"></div>
     <button class="btn btn-primary" onclick="saveIdentity()">Save &amp; Continue</button>
     <button class="btn btn-ghost" id="name-cancel" onclick="closeIdModal()" style="margin-top:9px;display:none">Cancel</button>
     <button class="btn btn-outline" id="name-signout" onclick="signOutUser()" style="margin-top:9px;display:none">Sign out</button>
@@ -674,13 +674,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div id="places-list" style="margin-bottom:18px"></div>
       </div><!-- /panel-places -->
 
-      <!-- ══ BALANCES TAB (CLEAN CARDS ONLY) ══ -->
+      <!-- ══ BALANCES TAB ══ -->
       <div class="tab-panel" id="panel-balances" style="display:none">
-        <!-- Direct Action List -->
         <div class="sec-head"><div class="sec-title">Transfers to Make</div></div>
         <div id="debts-list"></div>
 
-        <!-- History of Settled Debts -->
         <div class="sec-head" style="margin-top:24px"><div class="sec-title">Settlement History</div></div>
         <div id="settled-list"><div class="empty" style="padding:10px 0"><p>No settled payments yet.</p></div></div>
       </div><!-- /panel-balances -->
@@ -739,9 +737,12 @@ let editingPlaceId = null, placeFilter = 'all';
 /* ── INIT ── */
 window.onload = () => {
   try { allTrips = JSON.parse(store.get(LS) || '[]'); } catch(e) { allTrips = []; }
-  if (!FB_ON) {
-    if (!myName) showIdModal(false);
+  
+  if (FB_ON && auth && !auth.currentUser) {
+    auth.signInAnonymously().catch(err => console.log("Anonymous sign-in on load skipped:", err));
   }
+  
+  if (!myName) showIdModal(false);
   updateDashChip();
   handleURL();
   renderDash();
@@ -803,13 +804,15 @@ function signInGuest() {
 
 function signOutUser() {
   if (!auth) return;
-  auth.signOut();
+  auth.signOut().then(() => {
+    auth.signInAnonymously().catch(() => {});
+  });
   closeIdModal();
 }
 
 function handleAuthChange(user) {
   currentUser = user;
-  if (user) {
+  if (user && !user.isAnonymous) {
     const override = store.get('TripSplit_NameOverride_' + user.uid);
     myName = override || user.displayName || (user.email ? user.email.split('@')[0] : '') || myName || 'You';
     store.set('TripSplit_MyName', myName);
@@ -835,7 +838,7 @@ function loadTripsForUser(uid) {
 }
 
 function registerTripOwnership(tripId) {
-  if (!currentUser || !db) return;
+  if (!currentUser || !db || currentUser.isAnonymous) return;
   db.ref('users/' + currentUser.uid + '/tripIds/' + tripId).set(true);
 }
 
@@ -938,7 +941,7 @@ function mergeTripLocally(incoming) {
 function showIdModal(canCancel) {
   document.getElementById('name-inp').value = myName || '';
   document.getElementById('name-cancel').style.display = canCancel ? 'flex' : 'none';
-  document.getElementById('name-signout').style.display = currentUser ? 'flex' : 'none';
+  document.getElementById('name-signout').style.display = (currentUser && !currentUser.isAnonymous) ? 'flex' : 'none';
   document.getElementById('id-modal').classList.remove('hidden');
   setTimeout(() => document.getElementById('name-inp').focus(), 80);
 }
@@ -956,7 +959,7 @@ function updateDashChip() {
   const gsi = document.getElementById('gsi-btn');
   const note = document.getElementById('acct-note');
   const userBtn = document.getElementById('user-btn-el');
-  if (FB_ON && auth && !currentUser) {
+  if (FB_ON && auth && (!currentUser || currentUser.isAnonymous)) {
     gsi.classList.remove('hidden'); note.classList.remove('hidden'); userBtn.classList.add('hidden');
     return;
   }
@@ -1089,7 +1092,7 @@ function deleteTrip(id) {
   allTrips = allTrips.filter(t=>t.id!==id); saveLocal();
   if (FB_ON && db) {
     db.ref('trips/'+id).remove();
-    if (currentUser) db.ref('users/'+currentUser.uid+'/tripIds/'+id).remove();
+    if (currentUser && !currentUser.isAnonymous) db.ref('users/'+currentUser.uid+'/tripIds/'+id).remove();
   }
   activeTripId = null; renderDash();
 }
@@ -1136,7 +1139,16 @@ function shareTripById(id) {
   document.getElementById('share-modal').classList.remove('hidden');
 }
 function openShareModal() { shareTripById(activeTripId); }
-function copyShareLink() { document.getElementById('share-ta').select(); document.execCommand('copy'); showToast("Link copied!"); }
+function copyShareLink() {
+  const ta = document.getElementById('share-ta');
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(ta.value).then(() => showToast("Link copied!")).catch(() => {
+      ta.select(); document.execCommand('copy'); showToast("Link copied!");
+    });
+  } else {
+    ta.select(); document.execCommand('copy'); showToast("Link copied!");
+  }
+}
 
 /* ── BUDGET ── */
 function openBudgetModal() {
@@ -1401,8 +1413,9 @@ function saveExpense() {
   const trip = allTrips.find(t=>t.id===activeTripId);
   const name = document.getElementById('exp-name').value.trim();
   const amount = parseFloat(document.getElementById('exp-amt').value);
-  const curr = document.getElementById('exp-curr').value;
-  const payer = document.getElementById('exp-payer').value;
+  const curr = document.getElementById('exp-curr').value || document.getElementById('main-curr').value;
+  const members = getMembers();
+  const payer = document.getElementById('exp-payer').value || (members.length ? members[0] : (myName || 'You'));
   const cat = document.getElementById('exp-cat').value;
   const note = document.getElementById('exp-note').value.trim();
   const base = document.getElementById('main-curr').value;
@@ -1752,7 +1765,13 @@ function sharePlace(id) {
   const p = trip.places.find(x=>x.id===id); if (!p) return;
   const text = `📍 ${p.name}${p.note?' — '+p.note:''}\n${buildMapsLink(p.mapsQuery||p.name)}`;
   if (navigator.share) { navigator.share({ title:p.name, text }).catch(()=>{}); }
-  else { navigator.clipboard.writeText(text).then(()=>showToast("Place copied!")).catch(()=>showToast("Couldn't copy.")); }
+  else {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(()=>showToast("Place copied!")).catch(()=>showToast("Couldn't copy."));
+    } else {
+      showToast("Place copied!");
+    }
+  }
 }
 function renderPlaces() {
   const trip = allTrips.find(t=>t.id===activeTripId); if (!trip) return;
