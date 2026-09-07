@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1a1714">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>TripSplit — Live Expense Tracker</title>
+<title>Settleway — Live Expense Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -171,7 +171,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .exp-conv{font-size:.68rem;color:var(--ink3);margin-top:2px}
 .mine-badge{display:inline-block;font-size:.63rem;font-weight:700;padding:1px 6px;border-radius:20px;background:var(--blu-lt);color:var(--blu);margin-left:4px}
 
-/* PLACES */
+/* PLACES / BOOKMARKS */
 .place-item{background:var(--surface);border:1px solid var(--brd);border-radius:var(--r);padding:12px;margin-bottom:7px;display:flex;gap:10px;align-items:flex-start}
 .place-icon{width:34px;height:34px;border-radius:9px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
 .place-body{flex:1;min-width:0}
@@ -179,9 +179,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .place-status{display:inline-block;font-size:.67rem;font-weight:600;padding:1px 7px;border-radius:20px;margin-top:2px;margin-right:4px}
 .status-want{background:#fef9c3;color:#7a5c00}
 .status-visited{background:var(--grn-lt);color:var(--grn)}
-.place-note{font-size:.75rem;color:var(--ink2);margin-top:3px}
-.place-meta{font-size:.68rem;color:var(--ink3);margin-top:2px;font-style:italic}
-.place-acts{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.place-note{font-size:.8rem;color:var(--ink2);margin-top:5px;background:var(--s2);padding:6px 9px;border-radius:8px;line-height:1.4}
+.place-meta{font-size:.68rem;color:var(--ink3);margin-top:5px;font-style:italic}
+.place-acts{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+
+/* AUTOCOMPLETE */
+.search-wrap { position: relative; }
+.autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--brd); border-radius: 0 0 var(--r) var(--r); box-shadow: var(--shd-lg); z-index: 100; max-height: 220px; overflow-y: auto; margin-top: -10px; padding-top: 10px; }
+.ac-item { padding: 9px 12px; border-bottom: 1px solid var(--s2); cursor: pointer; transition: background 0.15s; }
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover { background: var(--s2); }
+.ac-name { font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+.ac-meta { font-size: 0.7rem; color: var(--ink2); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* BUDGET BAR */
 .budget-card{background:var(--surface);border:1px solid var(--brd);border-radius:var(--rl);padding:15px;margin-bottom:16px}
@@ -434,7 +443,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
   <div id="dash-view" class="view">
     <div class="dash-head">
-      <div class="lbl">TripSplit</div>
+      <div class="lbl">Settleway</div>
       <h1>My Trips</h1>
 
       <button class="gsi-btn hidden" id="gsi-btn" onclick="document.getElementById('auth-modal').classList.remove('hidden')">
@@ -468,7 +477,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
       <div class="main-tabs">
         <button class="mtab act" id="mtab-expenses" onclick="switchTab('expenses')">💸 Expenses</button>
-        <button class="mtab" id="mtab-places" onclick="switchTab('places')">📍 Places</button>
+        <button class="mtab" id="mtab-places" onclick="switchTab('places')">🔖 Bookmarks</button>
         <button class="mtab" id="mtab-balances" onclick="switchTab('balances')">📊 Balances</button>
       </div>
     </div>
@@ -641,15 +650,19 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
       </div><!-- /panel-expenses -->
 
-      <!-- ══ PLACES TAB ══ -->
+      <!-- ══ BOOKMARKS TAB ══ -->
       <div class="tab-panel" id="panel-places" style="display:none">
         <div class="sec-head">
-          <div class="sec-title">📍 Saved Places</div>
+          <div class="sec-title">🔖 Saved Bookmarks</div>
           <div class="filter-row" id="place-filter" style="margin:0"></div>
         </div>
         <div class="scard">
           <div class="row2 fg">
-            <div><label class="fl">Name</label><input type="text" id="place-name" placeholder="e.g., Restoran Nasi Kandar"></div>
+            <div class="search-wrap">
+              <label class="fl">Name</label>
+              <input type="text" id="place-name" placeholder="Search or type a place..." autocomplete="off" oninput="searchPlaces(this.value)">
+              <div id="place-autocomplete" class="autocomplete-list hidden"></div>
+            </div>
             <div style="flex:0 0 118px"><label class="fl">Category</label>
               <select id="place-cat">
                 <option value="food">🍜 Food</option>
@@ -661,7 +674,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             </div>
           </div>
           <div class="row2 fg">
-            <div><label class="fl">Note (optional)</label><input type="text" id="place-note" placeholder="e.g., Try the ayam berempah"></div>
+            <div>
+              <label class="fl">Note / Review (optional)</label>
+              <textarea id="place-note" placeholder="Write tips, dish recommendations, or reviews here..." rows="3"></textarea>
+            </div>
             <div style="flex:0 0 118px"><label class="fl">Status</label>
               <select id="place-status">
                 <option value="want">👀 Want to try</option>
@@ -669,7 +685,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
               </select>
             </div>
           </div>
-          <button class="btn btn-primary" id="place-save-btn" onclick="savePlace()">+ Add Place</button>
+          <button class="btn btn-primary" id="place-save-btn" onclick="savePlace()">+ Add Bookmark</button>
         </div>
         <div id="places-list" style="margin-bottom:18px"></div>
       </div><!-- /panel-places -->
@@ -726,26 +742,35 @@ const store = {
 };
 
 /* ── STATE ── */
-const LS = "TripSplitApp_MultiTrips";
+const LS = "SettlewayApp_MultiTrips";
 let allTrips = [], activeTripId = null, rates = {}, editingId = null;
-let myName = store.get("TripSplit_MyName") || "";
+let myName = store.get("Settleway_MyName") || store.get("TripSplit_MyName") || "";
 let saveTimer = null, splitMode = 'equal', catFilter = 'all', mineOnly = false;
-let lastWriteTs = 0;
+let lastWriteTs = 0, appInitialized = false;
 let currentItems = [], itemIdCounter = 0;
 let editingPlaceId = null, placeFilter = 'all';
 
 /* ── INIT ── */
 window.onload = () => {
-  try { allTrips = JSON.parse(store.get(LS) || '[]'); } catch(e) { allTrips = []; }
-  
-  if (FB_ON && auth && !auth.currentUser) {
-    auth.signInAnonymously().catch(err => console.log("Anonymous sign-in on load skipped:", err));
+  try { 
+    allTrips = JSON.parse(store.get(LS) || store.get("TripSplitApp_MultiTrips") || '[]'); 
+  } catch(e) { 
+    allTrips = []; 
   }
   
   if (!myName) showIdModal(false);
   updateDashChip();
-  handleURL();
-  renderDash();
+  
+  if (FB_ON && auth) {
+    if (!auth.currentUser) {
+      auth.signInAnonymously().catch(err => console.log("Anonymous sign-in on load skipped:", err));
+    }
+  } else {
+    // If Firebase isn't configured, run right away
+    appInitialized = true;
+    handleURL();
+    renderDash();
+  }
 };
 
 /* ── AUTH ── */
@@ -754,13 +779,9 @@ function signInGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(err => {
     console.error("Google Auth Error:", err);
-    if (err.code === 'auth/unauthorized-domain') {
-      showToast("Domain not authorized in Firebase Console.");
-    } else if (err.code === 'auth/popup-blocked') {
-      showToast("Browser blocked the login popup.");
-    } else {
-      showToast(err.message || "Sign-in failed.");
-    }
+    if (err.code === 'auth/unauthorized-domain') showToast("Domain not authorized in Firebase Console.");
+    else if (err.code === 'auth/popup-blocked') showToast("Browser blocked the login popup.");
+    else showToast(err.message || "Sign-in failed.");
   });
 }
 
@@ -789,9 +810,7 @@ function signUpEmail() {
 function signInGuest() {
   closeModal('auth-modal');
   if (auth) {
-    auth.signInAnonymously().then(() => {
-      showToast("Signed in as Guest");
-    }).catch(err => {
+    auth.signInAnonymously().then(() => showToast("Signed in as Guest")).catch(err => {
       console.warn("Firebase anonymous auth failed, falling back locally:", err);
       currentUser = { uid: 'guest_' + Date.now(), displayName: 'Guest' };
       handleAuthChange(currentUser);
@@ -804,23 +823,26 @@ function signInGuest() {
 
 function signOutUser() {
   if (!auth) return;
-  auth.signOut().then(() => {
-    auth.signInAnonymously().catch(() => {});
-  });
+  auth.signOut().then(() => auth.signInAnonymously().catch(() => {}));
   closeIdModal();
 }
 
 function handleAuthChange(user) {
   currentUser = user;
   if (user && !user.isAnonymous) {
-    const override = store.get('TripSplit_NameOverride_' + user.uid);
+    const override = store.get('Settleway_NameOverride_' + user.uid);
     myName = override || user.displayName || (user.email ? user.email.split('@')[0] : '') || myName || 'You';
-    store.set('TripSplit_MyName', myName);
+    store.set('Settleway_MyName', myName);
     loadTripsForUser(user.uid);
-    if (window.__pendingJoinId) { autoJoinTrip(window.__pendingJoinId); window.__pendingJoinId = null; }
   }
   updateDashChip();
-  if (!activeTripId) renderDash();
+
+  // Crucial: Only load URL after Auth ensures we have permissions for database rules
+  if (!appInitialized && user) {
+    appInitialized = true;
+    handleURL();
+    if (!activeTripId) renderDash();
+  }
 }
 
 function loadTripsForUser(uid) {
@@ -842,9 +864,26 @@ function registerTripOwnership(tripId) {
   db.ref('users/' + currentUser.uid + '/tripIds/' + tripId).set(true);
 }
 
-/* ── URL HANDLING ── */
+/* ── URL HANDLING & DB SYNC ── */
 function handleURL() {
   const p = new URLSearchParams(location.search);
+  
+  // Handle local enc
+  const enc = p.get('trip');
+  if (enc) {
+    history.replaceState({}, '', location.pathname);
+    try {
+      const incoming = JSON.parse(decodeURIComponent(atob(enc)));
+      mergeTripLocally(incoming);
+      saveLocal();
+      if (FB_ON) pushFB(allTrips.find(t => t.id === incoming.id));
+      showToast("Trip imported!");
+      openTrip(incoming.id);
+    } catch(e) { console.error("Bad link", e); }
+    return;
+  }
+
+  // Handle Cloud Link
   const fbId = p.get('id');
   if (fbId && FB_ON && db) {
     const wantsJoin = p.get('join') === '1';
@@ -861,21 +900,7 @@ function handleURL() {
       }
       showToast("🎉 Trip loaded! Updates sync live.");
       openTrip(fbId);
-    }).catch(() => showToast("Couldn't load trip from cloud."));
-    return;
-  }
-
-  const enc = p.get('trip');
-  if (enc) {
-    history.replaceState({}, '', location.pathname);
-    try {
-      const incoming = JSON.parse(decodeURIComponent(atob(enc)));
-      mergeTripLocally(incoming);
-      saveLocal();
-      if (FB_ON) pushFB(allTrips.find(t => t.id === incoming.id));
-      showToast("Trip imported!");
-      openTrip(incoming.id);
-    } catch(e) { console.error("Bad link", e); }
+    }).catch(() => showToast("Couldn't load trip from cloud. Check connection."));
   }
 }
 
@@ -950,8 +975,8 @@ function editIdentity() { showIdModal(true); }
 function saveIdentity() {
   const n = document.getElementById('name-inp').value.trim();
   if (!n) return;
-  myName = n; store.set("TripSplit_MyName", myName);
-  if (currentUser) store.set('TripSplit_NameOverride_' + currentUser.uid, myName);
+  myName = n; store.set("Settleway_MyName", myName);
+  if (currentUser) store.set('Settleway_NameOverride_' + currentUser.uid, myName);
   closeIdModal(); updateDashChip(); renderDash();
   if (window.__pendingJoinId) { autoJoinTrip(window.__pendingJoinId); window.__pendingJoinId = null; }
 }
@@ -972,8 +997,8 @@ function updateDashChip() {
 
 /* ── ONBOARDING ── */
 const ONBOARD_STEPS = [
-  { ico:'💸', title:'Expenses tab', desc:"Add what was spent, who paid, and how to split it — evenly, by exact custom amount, by item (who ate what), by %, by shares, or with an adjustment." },
-  { ico:'📍', title:'Places tab', desc:"Save restaurants, viewpoints and things to do. Mark them 'want to try' or 'visited', and open any spot straight in Google Maps." },
+  { ico:'💸', title:'Expenses tab', desc:"Add what was spent, who paid, and how to split it — evenly, by custom amount, or by item." },
+  { ico:'🔖', title:'Bookmarks tab', desc:"Search to save restaurants and viewpoints. Add notes and open locations straight in Google Maps." },
   { ico:'📊', title:'Balances tab', desc:"Direct transfers showing who pays whom — tap 'Mark as Paid' to settle up instantly." }
 ];
 let obStep = 0;
@@ -996,7 +1021,7 @@ function nextOnboarding() {
 function skipOnboarding() { finishOnboarding(); }
 function finishOnboarding() {
   document.getElementById('onboard-modal').classList.add('hidden');
-  store.set('TripSplit_OnboardSeen', '1');
+  store.set('Settleway_OnboardSeen', '1');
 }
 
 /* ── FIREBASE ACTIONS ── */
@@ -1059,7 +1084,10 @@ function renderDash() {
   if (!allTrips.length) { g.innerHTML = '<div class="empty"><div class="ico">🌍</div><p>No trips yet.</p></div>'; return; }
   g.innerHTML = '';
   allTrips.forEach(trip => {
-    const spent = (trip.expenses||[]).reduce((s,e)=>s+e.amountInBase,0);
+    let spent = 0;
+    const base = trip.mainCurrency || 'MYR';
+    (trip.expenses||[]).forEach(e => spent += getExpenseData(e, base).amt);
+    
     const members = (trip.membersInput||'').split(',').map(s=>s.trim()).filter(Boolean);
     const pips = members.map(m=>`<span class="pip">${m}</span>`).join('');
     const badge = FB_ON ? `<span class="sync-badge sb-live"><span class="live-dot"></span> Live Sync</span>` : `<span class="sync-badge sb-local">📱 Local</span>`;
@@ -1119,7 +1147,7 @@ function openTrip(id) {
   renderPlaces(); renderPlaceFilter();
   catFilter = 'all'; renderCatFilter();
   document.getElementById('mine-toggle-btn').classList.remove('act');
-  if (!store.get('TripSplit_OnboardSeen')) setTimeout(showOnboarding, 350);
+  if (!store.get('Settleway_OnboardSeen')) setTimeout(showOnboarding, 350);
 }
 
 function closeTrip() {
@@ -1150,6 +1178,22 @@ function copyShareLink() {
   }
 }
 
+/* ── DYNAMIC CURRENCY CALCULATOR ── */
+// Returns converted amount based on LIVE rates (or fallback to original if rates unavailable)
+function getExpenseData(exp, currentBase) {
+  if (!exp.currency || exp.currency === currentBase) {
+    const amt = exp.originalAmount || exp.amountInBase;
+    const baseVal = exp.amountInBase || amt || 1;
+    return { amt, ratio: amt / baseVal };
+  }
+  if (rates[exp.currency]) {
+    const amt = exp.originalAmount / rates[exp.currency];
+    const baseVal = exp.amountInBase || exp.originalAmount || 1;
+    return { amt, ratio: amt / baseVal };
+  }
+  return { amt: exp.amountInBase, ratio: 1 };
+}
+
 /* ── BUDGET ── */
 function openBudgetModal() {
   const trip = allTrips.find(t=>t.id===activeTripId);
@@ -1167,7 +1211,11 @@ function updateBudget() {
   const card = document.getElementById('budget-card');
   if (!trip.budget) { card.style.display='none'; return; }
   card.style.display='block';
-  const spent = (trip.expenses||[]).reduce((s,e)=>s+e.amountInBase,0);
+  
+  let spent = 0;
+  const base = trip.mainCurrency;
+  (trip.expenses||[]).forEach(e => spent += getExpenseData(e, base).amt);
+  
   const pct = Math.min((spent/trip.budget)*100, 100);
   const fill = document.getElementById('bud-fill');
   fill.style.width = pct+'%';
@@ -1184,8 +1232,15 @@ async function fetchRates() {
   try {
     const r = await fetch(`https://open.er-api.com/v6/latest/${base}`);
     const d = await r.json();
-    if (d.result==='success') { rates=d.rates; el.innerHTML=`<span style="color:var(--grn)">⬤</span> Live · Base: ${base}`; document.getElementById('total-curr').textContent=base; }
-    else throw 0;
+    if (d.result==='success') { 
+      rates=d.rates; 
+      el.innerHTML=`<span style="color:var(--grn)">⬤</span> Live · Base: ${base}`; 
+      document.getElementById('total-curr').textContent=base; 
+      // Refresh calculations on base currency change
+      if (activeTripId) {
+        updateStat(); updateBreakdown(); renderDebts(); renderExpenses(); updateBudget();
+      }
+    } else throw 0;
   } catch { el.innerHTML='<span style="color:var(--red)">⬤</span> Rate fetch failed'; }
 }
 
@@ -1474,7 +1529,9 @@ function editExpense(id) {
     setTimeout(()=>{
       document.querySelectorAll('.split-inp').forEach(inp=>{
         if (exp.splitAmounts&&exp.splitAmounts[inp.dataset.member]!==undefined) {
-          inp.value = exp.splitAmounts[inp.dataset.member].toFixed(2);
+          // Adjust split fields to original currency ratios for edit view
+          const { ratio } = getExpenseData(exp, trip.mainCurrency);
+          inp.value = (exp.splitAmounts[inp.dataset.member] / ratio).toFixed(2);
         }
       });
       validateSplit();
@@ -1540,9 +1597,11 @@ function renderExpenses() {
     el.innerHTML=`<div class="empty" style="padding:16px 0"><div class="ico">🧾</div><p>No expenses${mineOnly?'':reason}${mineOnly?" — you haven't added any yet.":''}</p></div>`;
     return;
   }
+  
+  const base = trip.mainCurrency;
   el.innerHTML=expenses.slice().reverse().map(exp=>{
-    const base=trip.mainCurrency;
-    const conv=exp.currency!==base?`<div class="exp-conv">≈ ${exp.amountInBase.toFixed(2)} ${base}</div>`:'';
+    const { amt } = getExpenseData(exp, base);
+    const conv = exp.currency !== base ? `<div class="exp-conv">≈ ${amt.toFixed(2)} ${base}</div>` : '';
     const mine = exp.addedBy===myName ? `<span class="mine-badge">You added</span>` : '';
     const hist=exp.addedBy?`<div class="exp-hist">by ${exp.addedBy}${exp.timestamp?' · '+exp.timestamp:''}</div>`:'';
     const note=exp.note?`<div class="exp-hist">📝 ${exp.note}</div>`:'';
@@ -1568,8 +1627,11 @@ function renderExpenses() {
 /* ── STATS ── */
 function updateStat() {
   const trip=allTrips.find(t=>t.id===activeTripId); if(!trip) return;
-  document.getElementById('total-val').textContent=(trip.expenses||[]).reduce((s,e)=>s+e.amountInBase,0).toFixed(2);
-  document.getElementById('total-curr').textContent=trip.mainCurrency;
+  let total = 0;
+  const base = trip.mainCurrency || 'MYR';
+  (trip.expenses||[]).forEach(e => total += getExpenseData(e, base).amt);
+  document.getElementById('total-val').textContent = total.toFixed(2);
+  document.getElementById('total-curr').textContent = base;
 }
 
 /* ── BREAKDOWN ── */
@@ -1579,12 +1641,15 @@ function updateBreakdown() {
   if(!members.length||!(trip.expenses||[]).length){card.innerHTML='<div class="empty" style="padding:10px 0"><p>No data yet.</p></div>';return;}
   const paid={}, share={};
   members.forEach(m=>{paid[m]=0;share[m]=0;});
+  const base = trip.mainCurrency;
+  
   (trip.expenses||[]).forEach(exp=>{
-    if(paid[exp.payer]!==undefined) paid[exp.payer]+=exp.amountInBase;
+    const { amt, ratio } = getExpenseData(exp, base);
+    if(paid[exp.payer]!==undefined) paid[exp.payer] += amt;
     exp.splitBetween.forEach(m=>{
       if(share[m]!==undefined){
-        if(exp.splitAmounts&&exp.splitAmounts[m]!==undefined) share[m]+=exp.splitAmounts[m];
-        else share[m]+=exp.amountInBase/(exp.splitBetween.length||1);
+        if(exp.splitAmounts&&exp.splitAmounts[m]!==undefined) share[m] += exp.splitAmounts[m] * ratio;
+        else share[m] += amt/(exp.splitBetween.length||1);
       }
     });
   });
@@ -1605,11 +1670,12 @@ function renderDebts() {
 
   // Compute raw shares
   (trip.expenses||[]).forEach(exp=>{
-    if(bal[exp.payer]!==undefined) bal[exp.payer] += exp.amountInBase;
+    const { amt, ratio } = getExpenseData(exp, base);
+    if(bal[exp.payer]!==undefined) bal[exp.payer] += amt;
     exp.splitBetween.forEach(p=>{
       if(bal[p]!==undefined){
-        if(exp.splitAmounts && exp.splitAmounts[p]!==undefined) bal[p] -= exp.splitAmounts[p];
-        else bal[p] -= exp.amountInBase / (exp.splitBetween.length||1);
+        if(exp.splitAmounts && exp.splitAmounts[p]!==undefined) bal[p] -= exp.splitAmounts[p] * ratio;
+        else bal[p] -= amt / (exp.splitBetween.length||1);
       }
     });
   });
@@ -1699,7 +1765,49 @@ function renderActivity() {
   }).join('');
 }
 
-/* ── SAVED PLACES ── */
+/* ── AUTOCOMPLETE FOR BOOKMARKS ── */
+let mapSearchTimeout = null;
+
+// Close dropdown on outside click
+document.addEventListener('click', (e) => {
+  const ac = document.getElementById('place-autocomplete');
+  if (ac && !e.target.closest('.search-wrap')) ac.classList.add('hidden');
+});
+
+async function searchPlaces(q) {
+  const ac = document.getElementById('place-autocomplete');
+  if (!q || q.length < 3) { ac.classList.add('hidden'); return; }
+  clearTimeout(mapSearchTimeout);
+  mapSearchTimeout = setTimeout(async () => {
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5`);
+      const data = await r.json();
+      if (data && data.length) {
+        ac.innerHTML = data.map(i => {
+          const rawName = (i.name || i.display_name.split(',')[0]);
+          const safeName = rawName.replace(/'/g,"\\'");
+          return `<div class="ac-item" onclick="selectPlace('${safeName}', '${i.lat}', '${i.lon}')">
+            <div class="ac-name">${rawName}</div>
+            <div class="ac-meta">${i.display_name}</div>
+          </div>`;
+        }).join('');
+        ac.classList.remove('hidden');
+      } else {
+        ac.classList.add('hidden');
+      }
+    } catch(e) { ac.classList.add('hidden'); }
+  }, 450);
+}
+
+function selectPlace(name, lat, lon) {
+  const inp = document.getElementById('place-name');
+  inp.value = name;
+  inp.dataset.lat = lat;
+  inp.dataset.lon = lon;
+  document.getElementById('place-autocomplete').classList.add('hidden');
+}
+
+/* ── SAVED BOOKMARKS ── */
 const PLACE_ICONS = { food:'🍜', drink:'🥂', view:'👀', activity:'🎟️', other:'📍' };
 const PLACE_FILTERS = { all:'All', want:'👀 Want', visited:'✅ Visited' };
 
@@ -1707,49 +1815,66 @@ function buildMapsLink(query) { return 'https://www.google.com/maps/search/?api=
 
 function savePlace() {
   const trip = allTrips.find(t=>t.id===activeTripId); if (!trip) return;
-  const name = document.getElementById('place-name').value.trim();
+  const inp = document.getElementById('place-name');
+  const name = inp.value.trim();
+  const lat = inp.dataset.lat;
+  const lon = inp.dataset.lon;
   const cat = document.getElementById('place-cat').value;
   const note = document.getElementById('place-note').value.trim();
   const status = document.getElementById('place-status').value;
+  
   if (!name) { showToast("⚠️ Enter a place name."); return; }
   if (!trip.places || !Array.isArray(trip.places)) trip.places = trip.places ? Object.values(trip.places) : [];
   const ts = new Date().toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-  const mapsQuery = trip.title ? name+' '+trip.title.replace(/[^\w\s]/g,'') : name;
+  
+  // Use exact coordinates if selected from dropdown, otherwise fallback to text search
+  const mapsQuery = (lat && lon) ? `${lat},${lon}` : (trip.title ? name+' '+trip.title.replace(/[^\w\s]/g,'') : name);
+  
   if (editingPlaceId) {
     const pi = trip.places.findIndex(p=>p.id===editingPlaceId);
     if (pi!==-1) trip.places[pi] = { ...trip.places[pi], name, category:cat, note, status, mapsQuery };
-    logActivity(trip, `${myName||'Someone'} updated place "${name}"`);
+    logActivity(trip, `${myName||'Someone'} updated bookmark "${name}"`);
     cancelPlaceEdit();
   } else {
     const id = 'place_'+Date.now()+'_'+Math.floor(Math.random()*9999);
     trip.places.push({ id, name, category:cat, note, status, addedBy:myName||'User', timestamp:ts, mapsQuery });
-    logActivity(trip, `${myName||'Someone'} saved a place — "${name}"`);
+    logActivity(trip, `${myName||'Someone'} saved a bookmark — "${name}"`);
   }
+  
+  // Reset fields & map data
+  inp.dataset.lat = ''; inp.dataset.lon = '';
+  document.getElementById('place-name').value=''; document.getElementById('place-note').value='';
+  
   saveLocal(); pushFB(trip);
   renderPlaces(); renderActivity(); renderPlaceFilter();
-  document.getElementById('place-name').value=''; document.getElementById('place-note').value='';
 }
 function cancelPlaceEdit() {
   editingPlaceId = null;
-  document.getElementById('place-save-btn').textContent = '+ Add Place';
+  document.getElementById('place-save-btn').textContent = '+ Add Bookmark';
   document.getElementById('place-name').value=''; document.getElementById('place-note').value='';
+  document.getElementById('place-name').dataset.lat = '';
+  document.getElementById('place-name').dataset.lon = '';
 }
 function editPlace(id) {
   const trip = allTrips.find(t=>t.id===activeTripId); const p = trip.places.find(x=>x.id===id); if (!p) return;
-  document.getElementById('place-name').value = p.name;
+  const inp = document.getElementById('place-name');
+  inp.value = p.name;
+  // If it was saved via coordinate search previously, parsing it back is tricky, so we clear local search state:
+  inp.dataset.lat = ''; inp.dataset.lon = '';
+  
   document.getElementById('place-cat').value = p.category;
   document.getElementById('place-note').value = p.note||'';
   document.getElementById('place-status').value = p.status;
   editingPlaceId = id;
-  document.getElementById('place-save-btn').textContent = '🔄 Update Place';
+  document.getElementById('place-save-btn').textContent = '🔄 Update Bookmark';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function removePlace(id) {
-  if (!confirm("Delete this place?")) return;
+  if (!confirm("Delete this bookmark?")) return;
   const trip = allTrips.find(t=>t.id===activeTripId);
   const p = trip.places.find(x=>x.id===id);
   trip.places = trip.places.filter(x=>x.id!==id);
-  if (p) logActivity(trip, `${myName||'Someone'} removed place "${p.name}"`);
+  if (p) logActivity(trip, `${myName||'Someone'} removed bookmark "${p.name}"`);
   saveLocal(); pushFB(trip);
   renderPlaces(); renderActivity(); renderPlaceFilter();
 }
@@ -1763,13 +1888,13 @@ function togglePlaceStatus(id) {
 function sharePlace(id) {
   const trip = allTrips.find(t=>t.id===activeTripId);
   const p = trip.places.find(x=>x.id===id); if (!p) return;
-  const text = `📍 ${p.name}${p.note?' — '+p.note:''}\n${buildMapsLink(p.mapsQuery||p.name)}`;
+  const text = `🔖 ${p.name}${p.note?' — '+p.note:''}\n${buildMapsLink(p.mapsQuery||p.name)}`;
   if (navigator.share) { navigator.share({ title:p.name, text }).catch(()=>{}); }
   else {
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(()=>showToast("Place copied!")).catch(()=>showToast("Couldn't copy."));
+      navigator.clipboard.writeText(text).then(()=>showToast("Link copied!")).catch(()=>showToast("Couldn't copy."));
     } else {
-      showToast("Place copied!");
+      showToast("Link copied!");
     }
   }
 }
@@ -1778,7 +1903,7 @@ function renderPlaces() {
   const el = document.getElementById('places-list'); if (!el) return;
   if (!trip.places || !Array.isArray(trip.places)) trip.places = trip.places ? Object.values(trip.places) : [];
   let places = placeFilter==='all' ? trip.places : trip.places.filter(p=>p.status===placeFilter);
-  if (!places.length) { el.innerHTML='<div class="empty" style="padding:14px 0"><div class="ico">📍</div><p>No places saved'+(placeFilter!=='all'?' with this status':' yet')+'.</p></div>'; return; }
+  if (!places.length) { el.innerHTML='<div class="empty" style="padding:14px 0"><div class="ico">🔖</div><p>No bookmarks saved'+(placeFilter!=='all'?' with this status':' yet')+'.</p></div>'; return; }
   el.innerHTML = places.slice().reverse().map(p=>{
     const statusBadge = p.status==='visited' ? '<span class="place-status status-visited">✅ Visited</span>' : '<span class="place-status status-want">👀 Want to try</span>';
     const note = p.note ? `<div class="place-note">📝 ${p.note}</div>` : '';
@@ -1790,7 +1915,7 @@ function renderPlaces() {
         <div>${statusBadge}</div>
         ${note}${meta}
         <div class="place-acts">
-          <button class="btn-xs" onclick="window.open('${buildMapsLink(p.mapsQuery||p.name)}','_blank')">📍 Open in Maps</button>
+          <button class="btn-xs" onclick="window.open('${buildMapsLink(p.mapsQuery||p.name)}','_blank')">📍 Open Maps</button>
           <button class="btn-xs" onclick="sharePlace('${p.id}')">🔗 Share</button>
           <button class="btn-xs" onclick="togglePlaceStatus('${p.id}')">${p.status==='visited'?'↩️ Mark want':'✅ Mark visited'}</button>
           <button class="btn-xs" onclick="editPlace('${p.id}')">✏️ Edit</button>
